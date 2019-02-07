@@ -1,7 +1,8 @@
 {
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "rules": {
-    "ordered-imports": false
+    "ordered-imports": false, // gets very annoying as the ide does not order them automatically
+    "interface-name": false // no I am not beginning every 'interface' with I
   },
   "linterOptions": {
     "exclude": [
