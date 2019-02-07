@@ -2,7 +2,9 @@
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "rules": {
     "ordered-imports": false, // gets very annoying as the ide does not order them automatically
-    "interface-name": false // no I am not beginning every 'interface' with I
+    "interface-name": false, // no I am not beginning every 'interface' with I
+    "max-classes-per-file": false, // it's ok to have multiple small components in the file
+    "object-literal-sort-keys": false // this one gets annoying fast, I can decide the most natural order
   },
   "linterOptions": {
     "exclude": [
