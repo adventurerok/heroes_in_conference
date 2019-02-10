@@ -9,6 +9,7 @@ import {Container} from "../store/Container";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {DateTimeLocal} from "../util/DateTimeLocal";
 import {eventModified} from "../store/actions/EventModified";
+import {deleteEvent} from "../store/actions/DeleteEvent";
 
 interface RouteParams {
     id: string,
@@ -22,6 +23,7 @@ interface ReduxStateProps {
 interface ReduxDispatchProps {
     loadEvents: () => void,
     updateEvent: (event: Event) => void,
+    deleteEvent: (event: Event) => void,
 }
 
 type ConnectedProps = RouteComponentProps<RouteParams>;
@@ -31,6 +33,7 @@ type Props = ConnectedProps & ReduxStateProps & ReduxDispatchProps;
 interface State {
     event?: Event,
     pendingSave?: boolean,
+    pendingDelete?: boolean,
 }
 
 class UnconnectedEventPage extends React.Component<Props, State> {
@@ -69,12 +72,18 @@ class UnconnectedEventPage extends React.Component<Props, State> {
 
         const event = this.state.event;
 
-        let pendingSaveMsg = null;
-        if(this.state.pendingSave) {
-            if(Container.isModified(this.props.event) && this.props.event.error) {
-                pendingSaveMsg = "Error while saving " + this.props.event.error.errorMsg;
+        let pendingMessage = null;
+        if (this.state.pendingSave) {
+            if (Container.isModified(this.props.event) && this.props.event.error) {
+                pendingMessage = "Error while saving " + this.props.event.error.errorMsg;
             } else {
-                pendingSaveMsg = "Saving event...";
+                pendingMessage = "Saving event...";
+            }
+        } else if (this.state.pendingDelete) {
+            if (Container.isModified(this.props.event) && this.props.event.error) {
+                pendingMessage = "Error while deleting " + this.props.event.error.errorMsg;
+            } else {
+                pendingMessage = "Deleting event...";
             }
         }
 
@@ -106,11 +115,12 @@ class UnconnectedEventPage extends React.Component<Props, State> {
                     <textarea className="form-control" id="description"
                               value={event.description} onChange={this.textChanged}/>
                 </div>
-                <div>{pendingSaveMsg}</div>
-                <div className="btn-toolbar">
+                <div>{pendingMessage}</div>
+                <div>
                     <button type="button" className="btn btn-success mr-1" onClick={this.updateAndReturnToList}>Update
                     </button>
                     <button type="button" className="btn btn-outline-info" onClick={this.cancel}>Cancel</button>
+                    <button type="button" className="btn btn-danger float-right" onClick={this.delete}>Delete</button>
                 </div>
             </form>
         </>;
@@ -126,8 +136,13 @@ class UnconnectedEventPage extends React.Component<Props, State> {
         }
 
         // Save success
-        if(this.state.pendingSave && Container.isSynced(this.props.event)) {
-            // nagivate back to events
+        if (this.state.pendingSave && Container.isSynced(this.props.event)) {
+            // navigate back to events
+            this.props.history.replace("/events");
+        }
+
+        // Delete success
+        if (this.state.pendingDelete && Container.isEmpty(this.props.event)) {
             this.props.history.replace("/events");
         }
     };
@@ -176,18 +191,30 @@ class UnconnectedEventPage extends React.Component<Props, State> {
             return;
         }
 
-        this.props.updateEvent(this.state.event);
-
         // pendingSave true tells componentDidUpdate to look for when the input event container changes to Synced
         this.setState({
             pendingSave: true
         });
+
+        this.props.updateEvent(this.state.event);
     };
 
     private cancel = () => {
 
         // go back
         this.props.history.replace("/events");
+    };
+
+    private delete = () => {
+        if (!this.state.event) {
+            return;
+        }
+
+        this.setState({
+            pendingDelete: true,
+        });
+
+        this.props.deleteEvent(this.state.event);
     };
 
 }
@@ -202,10 +229,10 @@ function mapStateToProps(state: AppState, ownProps: ConnectedProps): ReduxStateP
 }
 
 function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
-
     return {
         loadEvents: () => dispatch(loadEvents()),
-        updateEvent: (event) => dispatch(eventModified(Container.modified(event, Date.now())))
+        updateEvent: (event) => dispatch(eventModified(Container.modified(event, Date.now()))),
+        deleteEvent: (event) => dispatch(deleteEvent(event))
     };
 }
 
