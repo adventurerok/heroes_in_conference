@@ -7,6 +7,7 @@ import {IDMap} from "../store/IDMap";
 import {AppDispatch} from "../store/appStore";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {Container} from "../store/Container";
+import {Link} from "react-router-dom";
 
 
 // props to be passed in by mapStateToProps
@@ -33,7 +34,7 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
     }
 
     public componentDidMount(): void {
-        if(Container.isEmpty(this.props.allEvents)) {
+        if (Container.isEmpty(this.props.allEvents)) {
             this.props.loadEvents();
         }
     }
@@ -42,13 +43,14 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
         const eventComponents = [];
 
 
-        for(const event of this.props.events) {
+        for (const event of this.props.events) {
             eventComponents.push(<EventDisplay key={event.id} event={event}/>);
         }
 
         return <>
             <h1>Events</h1>
             <table className="table">
+                <thead>
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
@@ -56,7 +58,10 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
                     <th>End Time</th>
                     <th>Location</th>
                 </tr>
-            {eventComponents}
+                </thead>
+                <tbody>
+                {eventComponents}
+                </tbody>
             </table>
         </>;
     }
@@ -86,7 +91,7 @@ class EventDisplay extends React.Component<EventDisplayProps, {}> {
 
     public render(): React.ReactNode {
         return <tr>
-            <td>{this.props.event.name}</td>
+            <td><Link to={"/event/" + this.props.event.id}>{this.props.event.name}</Link></td>
             <td>{this.props.event.description}</td>
             <td>{format(this.props.event.startTime, "MMM d HH:mm")}</td>
             <td>{format(this.props.event.endTime, "MMM d HH:mm")}</td>

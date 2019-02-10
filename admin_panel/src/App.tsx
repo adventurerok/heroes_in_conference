@@ -5,6 +5,7 @@ import './App.css';
 import {EventListPage} from "./events/EventListPage";
 import {MapPage} from "./map/MapPage";
 import {NavLink} from "react-router-dom";
+import {EventPage} from "./events/EventPage";
 
 class App extends React.Component {
     public render() {
@@ -35,6 +36,7 @@ class App extends React.Component {
                 <p>Hello there!</p>
                 <Route path="/map" component={MapPage}/>
                 <Route path="/events" component={EventListPage}/>
+                <Route path="/event/:id" component={EventPage}/>
             </div>
         </>;
     }
