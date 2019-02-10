@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Route} from "react-router";
 import './App.css';
 
-import {EventsPage} from "./events/EventsPage";
+import {EventListPage} from "./events/EventListPage";
 import {MapPage} from "./map/MapPage";
 import {NavLink} from "react-router-dom";
 
@@ -34,7 +34,7 @@ class App extends React.Component {
             <div className="container">
                 <p>Hello there!</p>
                 <Route path="/map" component={MapPage}/>
-                <Route path="/events" component={EventsPage}/>
+                <Route path="/events" component={EventListPage}/>
             </div>
         </>;
     }

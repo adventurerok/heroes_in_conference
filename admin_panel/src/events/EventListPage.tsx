@@ -24,7 +24,7 @@ interface ReduxDispatchProps {
 type Props = ReduxStateProps & ReduxDispatchProps;
 
 // unconnected component
-class UnconnectedEventsPage extends React.Component<Props, {}> {
+class UnconnectedEventListPage extends React.Component<Props, {}> {
 
 
     public constructor(props: Readonly<Props>) {
@@ -75,7 +75,7 @@ function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     };
 }
 
-export const EventsPage = connect(mapStateToProps, mapDispatchToProps)(UnconnectedEventsPage);
+export const EventListPage = connect(mapStateToProps, mapDispatchToProps)(UnconnectedEventListPage);
 
 // event display item
 interface EventDisplayProps {
@@ -88,8 +88,8 @@ class EventDisplay extends React.Component<EventDisplayProps, {}> {
         return <tr>
             <td>{this.props.event.name}</td>
             <td>{this.props.event.description}</td>
-            <td>{format(this.props.event.startTime, "dd HH:mm")}</td>
-            <td>{format(this.props.event.endTime, "dd HH:mm")}</td>
+            <td>{format(this.props.event.startTime, "MMM d HH:mm")}</td>
+            <td>{format(this.props.event.endTime, "MMM d HH:mm")}</td>
             <td>{this.props.event.location || "None"}</td>
         </tr>;
     }
