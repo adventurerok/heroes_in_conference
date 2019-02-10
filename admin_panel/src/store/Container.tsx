@@ -12,7 +12,7 @@ export enum ContainerState {
     MODIFIED = "modified", // our data is ahead of the server
 }
 
-interface EmptyContainer {
+export interface EmptyContainer {
     state: ContainerState.EMPTY,
 }
 
@@ -22,7 +22,7 @@ function empty(): EmptyContainer {
     };
 }
 
-interface LoadingContainer {
+export interface LoadingContainer {
     state: ContainerState.LOADING,
     timeStartedLoading: number // ms time since we sent the load request
 }
@@ -41,7 +41,7 @@ export interface ErrorState {
     errorData?: any, // debug data about error
 }
 
-interface ErroredContainer {
+export interface ErroredContainer {
     state: ContainerState.ERRORED,
     error: ErrorState,
 }
@@ -53,7 +53,7 @@ function errored(error: ErrorState): ErroredContainer {
     };
 }
 
-interface SyncedContainer<T> {
+export interface SyncedContainer<T> {
     state: ContainerState.SYNCED,
     data: T,
     modified: number, // ms time that this data was last modified
@@ -67,7 +67,7 @@ function synced<T>(data: T, modifiedTime: number): SyncedContainer<T> {
     };
 }
 
-interface ModifiedContainer<T> {
+export interface ModifiedContainer<T> {
     state: ContainerState.MODIFIED,
     data: T,
     modified: number, // ms time that this data was changed
