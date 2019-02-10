@@ -4,12 +4,10 @@ import {Action} from "redux";
 
 export interface EventsLoadingAction extends Action<AppActionTypes> {
     type: AppActionTypes.EVENTS_LOADING,
-    loading: boolean,
 }
 
-export function eventsLoading(loading: boolean): EventsLoadingAction {
+export function eventsLoading(): EventsLoadingAction {
     return {
         type: AppActionTypes.EVENTS_LOADING,
-        loading,
     }
 }

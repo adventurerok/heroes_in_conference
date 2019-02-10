@@ -1,11 +1,10 @@
 import {Event} from "../events/Event";
+import {IDMap} from "./IDMap";
+import {Container} from "./Container";
 
-export interface IDMap<T> {
-    [id: string]: T
-}
+
 
 export interface AppState {
-    events: IDMap<Event>,
-    eventsLoading: boolean,
-    eventsLoadError?: string,
+    events: IDMap<Container<Event>>,
+    allEvents: Container<{}>, // simply for tracking whether we have requested to load all events
 }

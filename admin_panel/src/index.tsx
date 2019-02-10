@@ -7,11 +7,15 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import registerServiceWorker from './registerServiceWorker';
+import {Provider} from "react-redux";
+import {appStore} from "./store/appStore";
 
 ReactDOM.render(
-    <Router>
-        <App />
-    </Router>,
-  document.getElementById('root') as HTMLElement
+    <Provider store={appStore}>
+        <Router>
+            <App/>
+        </Router>
+    </Provider>,
+    document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

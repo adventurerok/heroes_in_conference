@@ -1,13 +1,13 @@
 import {ThunkAction} from "redux-thunk";
 import {AppState} from "./AppState";
-import {SetEventsAction} from "./actions/SetEvents";
+import {EventsLoadedAction} from "./actions/EventsLoaded";
 import {UpdateEventAction} from "./actions/UpdateEvent";
 import {EventsLoadingAction} from "./actions/EventsLoading";
 import {EventsLoadErrorAction} from "./actions/EventsLoadError";
 
 // these are the values the type field of the action can take
 export enum AppActionTypes {
-    SET_EVENTS = "SET_EVENTS",
+    EVENTS_LOADED = "EVENTS_LOADED",
     UPDATE_EVENT = "UPDATE_EVENT",
     EVENTS_LOADING = "EVENTS_LOADING",
     EVENTS_LOAD_ERROR = "EVENTS_LOAD_ERROR",
@@ -16,7 +16,7 @@ export enum AppActionTypes {
 
 // this way TypeScript can infer the type of an action from its "type" field
 export type AppObjectAction =
-    SetEventsAction
+    EventsLoadedAction
     | UpdateEventAction
     | EventsLoadingAction
     | EventsLoadErrorAction

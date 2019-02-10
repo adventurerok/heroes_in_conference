@@ -1,45 +1,48 @@
 import * as React from "react";
 import {Event, sortEvents} from "./Event"
 import {format} from "date-fns";
+import {connect} from "react-redux";
+import {AppState} from "../store/AppState";
+import {IDMap} from "../store/IDMap";
+import {AppDispatch} from "../store/appStore";
+import {loadEvents} from "../store/actions/LoadEvents";
+import {Container} from "../store/Container";
 
-interface EventsPageState {
-    events: Event[]
+
+// props to be passed in by mapStateToProps
+interface ReduxStateProps {
+    events: Event[],
+    allEvents: Container<{}> // state of loading all events
 }
 
-const mockEvents: Event[] = [
-    {
-        id: "1",
-        description: "The first event",
-        name: "First",
-        startTime: new Date(2019, 1, 1),
-        endTime: new Date(2019, 1, 2),
-    },
-    {
-        id: "2",
-        description: "The second event",
-        name: "Second",
-        startTime: new Date(2019, 1, 5),
-        endTime: new Date(2019, 1, 8),
-    }
-];
+// props to be passed in by mapDispatchToProps
+interface ReduxDispatchProps {
+    loadEvents: () => void,
+}
 
-export class EventsPage extends React.Component<{}, EventsPageState> {
+// combined props type
+type Props = ReduxStateProps & ReduxDispatchProps;
+
+// unconnected component
+class UnconnectedEventsPage extends React.Component<Props, {}> {
 
 
-    public constructor(props: Readonly<{}>) {
+    public constructor(props: Readonly<Props>) {
         super(props);
 
-        this.state = {
-            events: mockEvents.slice()
+    }
+
+    public componentDidMount(): void {
+        if(Container.isEmpty(this.props.allEvents)) {
+            this.props.loadEvents();
         }
     }
 
     public render(): React.ReactNode {
         const eventComponents = [];
 
-        const sortedEvents = this.state.events.sort(sortEvents);
 
-        for(const event of sortedEvents) {
+        for(const event of this.props.events) {
             eventComponents.push(<EventDisplay key={event.id} event={event}/>);
         }
 
@@ -59,6 +62,22 @@ export class EventsPage extends React.Component<{}, EventsPageState> {
     }
 }
 
+function mapStateToProps(state: AppState): ReduxStateProps {
+    return {
+        events: IDMap.values(state.events).filter(Container.isReady).map(e => e.data).sort(sortEvents),
+        allEvents: state.allEvents,
+    };
+}
+
+function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
+    return {
+        loadEvents: () => dispatch(loadEvents())
+    };
+}
+
+export const EventsPage = connect(mapStateToProps, mapDispatchToProps)(UnconnectedEventsPage);
+
+// event display item
 interface EventDisplayProps {
     event: Event
 }
