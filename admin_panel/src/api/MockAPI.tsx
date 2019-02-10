@@ -8,15 +8,15 @@ const mockEvents: IDMap<Event> = {
         id: "1",
         description: "The first event",
         name: "First",
-        startTime: new Date(2019, 1, 1),
-        endTime: new Date(2019, 1, 2),
+        startTime: new Date(2019, 1, 1).getTime(),
+        endTime: new Date(2019, 1, 2).getTime(),
     },
     "2": {
         id: "2",
         description: "The second event",
         name: "Second",
-        startTime: new Date(2019, 1, 5),
-        endTime: new Date(2019, 1, 8),
+        startTime: new Date(2019, 1, 5).getTime(),
+        endTime: new Date(2019, 1, 8).getTime(),
     }
 };
 

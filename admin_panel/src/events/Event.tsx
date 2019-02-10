@@ -1,7 +1,7 @@
 import {compareAsc, differenceInMilliseconds} from 'date-fns';
 
-// these are the types that will work with date-fns
-export type DateTime = Date | number;
+// working with ms since epoch is easiest
+export type DateTime = number;
 
 export interface Event {
     id: string,
