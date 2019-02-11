@@ -4,7 +4,7 @@ import {ChangeEvent} from "react";
 import {AppState} from "../store/AppState";
 import {AppDispatch} from "../store/appStore";
 import {connect} from "react-redux";
-import {Event} from "./Event";
+import {Event, newEvent} from "./Event";
 import {Container} from "../store/Container";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {DateTimeLocal} from "../util/DateTimeLocal";
@@ -22,8 +22,8 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
     loadEvents: () => void,
-    updateEvent: (event: Event) => void,
-    deleteEvent: (event: Event) => void,
+    updateEvent: (event: Event) => Promise<void>,
+    deleteEvent: (event: Event) => Promise<void>,
 }
 
 type ConnectedProps = RouteComponentProps<RouteParams>;
@@ -32,8 +32,7 @@ type Props = ConnectedProps & ReduxStateProps & ReduxDispatchProps;
 
 interface State {
     event?: Event,
-    pendingSave?: boolean,
-    pendingDelete?: boolean,
+    statusMessage?: string,
 }
 
 class UnconnectedEventPage extends React.Component<Props, State> {
@@ -61,7 +60,10 @@ class UnconnectedEventPage extends React.Component<Props, State> {
             return <div>Loading event...</div>;
         }
 
-        if (!Container.isReady(this.props.event)) {
+        const idOrNew = this.props.match.params.id;
+        const isNew = idOrNew === "new";
+
+        if (!Container.isReady(this.props.event) && !isNew) {
             return <div>No event exists for this id, perhaps it was deleted?</div>;
         }
 
@@ -72,23 +74,13 @@ class UnconnectedEventPage extends React.Component<Props, State> {
 
         const event = this.state.event;
 
-        let pendingMessage = null;
-        if (this.state.pendingSave) {
-            if (Container.isModified(this.props.event) && this.props.event.error) {
-                pendingMessage = "Error while saving " + this.props.event.error.errorMsg;
-            } else {
-                pendingMessage = "Saving event...";
-            }
-        } else if (this.state.pendingDelete) {
-            if (Container.isModified(this.props.event) && this.props.event.error) {
-                pendingMessage = "Error while deleting " + this.props.event.error.errorMsg;
-            } else {
-                pendingMessage = "Deleting event...";
-            }
-        }
+        const statusMessage = this.state.statusMessage || null;
+
+        const titleText = isNew ? "Creating Event" : "Modifying Event";
+        const updateButtonText = isNew ? "Create" : "Update";
 
         return <>
-            <h1>Modifying event</h1>
+            <h1>{titleText}</h1>
             <form>
                 <div className="form-group">
                     <label htmlFor="name">Event Name</label>
@@ -115,35 +107,35 @@ class UnconnectedEventPage extends React.Component<Props, State> {
                     <textarea className="form-control" id="description"
                               value={event.description} onChange={this.textChanged}/>
                 </div>
-                <div>{pendingMessage}</div>
+                <div>{statusMessage}</div>
                 <div>
-                    <button type="button" className="btn btn-success mr-1" onClick={this.updateAndReturnToList}>Update
+                    <button type="button" className="btn btn-success mr-1" onClick={this.updateAndReturnToList}>
+                        {updateButtonText}
                     </button>
                     <button type="button" className="btn btn-outline-info" onClick={this.cancel}>Cancel</button>
-                    <button type="button" className="btn btn-danger float-right" onClick={this.delete}>Delete</button>
+                    {!isNew &&
+                    <button type="button" className="btn btn-danger float-right" onClick={this.delete}>Delete</button>}
                 </div>
             </form>
         </>;
     }
 
     private onUpdate = () => {
+        const idOrNew = this.props.match.params.id;
 
-        // when the event has loaded, we copy it into state so we can work on a copy instead of changing the original
-        if (Container.isReady(this.props.event) && !this.state.event) {
-            this.setState({
-                event: this.props.event.data,
-            });
-        }
+        if (!this.state.event) {
+            if (idOrNew === "new") {
+                // create a new event
+                this.setState({
+                    event: newEvent()
+                });
+            } else if (Container.isReady(this.props.event)) {
+                // when the event has loaded, we copy it into state so we can work on a copy instead of changing the original
 
-        // Save success
-        if (this.state.pendingSave && Container.isSynced(this.props.event)) {
-            // navigate back to events
-            this.props.history.replace("/events");
-        }
-
-        // Delete success
-        if (this.state.pendingDelete && Container.isEmpty(this.props.event)) {
-            this.props.history.replace("/events");
+                this.setState({
+                    event: this.props.event.data,
+                });
+            }
         }
     };
 
@@ -193,10 +185,18 @@ class UnconnectedEventPage extends React.Component<Props, State> {
 
         // pendingSave true tells componentDidUpdate to look for when the input event container changes to Synced
         this.setState({
-            pendingSave: true
+            statusMessage: "Saving...",
         });
 
-        this.props.updateEvent(this.state.event);
+        this.props.updateEvent(this.state.event)
+            .then(() => {
+                this.props.history.replace("/events");
+            })
+            .catch(reason => {
+                this.setState({
+                    statusMessage: "Failed to save",
+                });
+            });
     };
 
     private cancel = () => {
@@ -211,10 +211,18 @@ class UnconnectedEventPage extends React.Component<Props, State> {
         }
 
         this.setState({
-            pendingDelete: true,
+            statusMessage: "Deleting...",
         });
 
-        this.props.deleteEvent(this.state.event);
+        this.props.deleteEvent(this.state.event)
+            .then(() => {
+                this.props.history.replace("/events");
+            })
+            .catch(reason => {
+                this.setState({
+                    statusMessage: "Failed to delete"
+                });
+            });
     };
 
 }
@@ -231,8 +239,8 @@ function mapStateToProps(state: AppState, ownProps: ConnectedProps): ReduxStateP
 function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     return {
         loadEvents: () => dispatch(loadEvents()),
-        updateEvent: (event) => dispatch(eventModified(Container.modified(event, Date.now()))),
-        deleteEvent: (event) => dispatch(deleteEvent(event))
+        updateEvent: (event) => eventModified(Container.modified(event, Date.now()), dispatch),
+        deleteEvent: (event) => deleteEvent(event, dispatch)
     };
 }
 

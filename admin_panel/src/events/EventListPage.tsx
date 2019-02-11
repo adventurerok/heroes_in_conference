@@ -7,7 +7,7 @@ import {IDMap} from "../store/IDMap";
 import {AppDispatch} from "../store/appStore";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {Container} from "../store/Container";
-import {Link} from "react-router-dom";
+import {Link, RouteComponentProps} from "react-router-dom";
 
 
 // props to be passed in by mapStateToProps
@@ -22,7 +22,7 @@ interface ReduxDispatchProps {
 }
 
 // combined props type
-type Props = ReduxStateProps & ReduxDispatchProps;
+type Props = RouteComponentProps<{}> & ReduxStateProps & ReduxDispatchProps;
 
 // unconnected component
 class UnconnectedEventListPage extends React.Component<Props, {}> {
@@ -49,6 +49,8 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
 
         return <>
             <h1>Events</h1>
+            <button type="button" className="btn btn-primary" onClick={this.newEvent}>New Event</button>
+            <br/>
             <table className="table">
                 <thead>
                 <tr>
@@ -65,6 +67,10 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
             </table>
         </>;
     }
+
+    private newEvent = () => {
+        this.props.history.push("/event/new")
+    };
 }
 
 function mapStateToProps(state: AppState): ReduxStateProps {
@@ -76,7 +82,7 @@ function mapStateToProps(state: AppState): ReduxStateProps {
 
 function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     return {
-        loadEvents: () => dispatch(loadEvents())
+        loadEvents: () => dispatch(loadEvents()),
     };
 }
 
