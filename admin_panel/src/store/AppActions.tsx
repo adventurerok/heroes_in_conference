@@ -4,6 +4,8 @@ import {EventsLoadedAction} from "./actions/EventsLoaded";
 import {UpdateCachedEventAction} from "./actions/UpdateCachedEvent";
 import {EventsLoadingAction} from "./actions/EventsLoading";
 import {EventsLoadErrorAction} from "./actions/EventsLoadError";
+import {UpdateCachedMapAction} from "./actions/maps/UpdateCachedMap";
+import {UpdateMapCacheAction} from "./actions/maps/UpdateMapCache";
 
 // these are the values the type field of the action can take
 export enum AppActionTypes {
@@ -12,15 +14,25 @@ export enum AppActionTypes {
     EVENTS_LOADING = "EVENTS_LOADING",
     EVENTS_LOAD_ERROR = "EVENTS_LOAD_ERROR",
 
+    UPDATE_MAP_CACHE = "UPDATE_MAP_CACHE",
+    UPDATE_CACHED_MAP = "UPDATE_CACHED_MAP",
 }
 
+
 // this way TypeScript can infer the type of an action from its "type" field
-export type AppObjectAction =
+type EventAction =
     EventsLoadedAction
     | UpdateCachedEventAction
     | EventsLoadingAction
     | EventsLoadErrorAction
     ;
+
+type MapAction =
+    UpdateCachedMapAction
+    | UpdateMapCacheAction
+    ;
+
+export type AppObjectAction = EventAction | MapAction;
 
 // type of our redux-thunk actions. Type params = thunk return type, state type, enhancer, 'object' action type
 export type AppThunkAction = ThunkAction<any, AppState, any, AppObjectAction>;
