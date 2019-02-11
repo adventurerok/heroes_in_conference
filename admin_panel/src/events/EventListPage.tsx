@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Event, sortEvents} from "./Event"
+import {Event} from "./Event"
 import {format} from "date-fns";
 import {connect} from "react-redux";
 import {AppState} from "../store/AppState";
@@ -75,7 +75,7 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
 
 function mapStateToProps(state: AppState): ReduxStateProps {
     return {
-        events: IDMap.values(state.events).filter(Container.isReady).map(e => e.data).sort(sortEvents),
+        events: IDMap.values(state.events).filter(Container.isReady).map(e => e.data).sort(Event.sortStartTime),
         allEvents: state.allEvents,
     };
 }

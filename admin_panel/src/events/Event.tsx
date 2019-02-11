@@ -16,7 +16,7 @@ export interface Event {
 /**
  * Sort events by which starts first, then which is longest, then their names
  */
-export function sortEvents(a: Event, b: Event): number {
+function sortStartTime(a: Event, b: Event): number {
     const compareStarts = compareAsc(a.startTime, b.startTime);
     if (compareStarts !== 0) {
         return compareStarts;
@@ -35,7 +35,7 @@ export function sortEvents(a: Event, b: Event): number {
     }
 }
 
-export function newEvent(): Event {
+function create(): Event {
     const id = uuidv4();
 
     return {
@@ -46,3 +46,8 @@ export function newEvent(): Event {
         endTime: Date.now()
     };
 }
+
+export const Event = {
+    sortStartTime,
+    create
+};

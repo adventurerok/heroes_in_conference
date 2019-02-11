@@ -4,7 +4,7 @@ import {ChangeEvent} from "react";
 import {AppState} from "../store/AppState";
 import {AppDispatch} from "../store/appStore";
 import {connect} from "react-redux";
-import {Event, newEvent} from "./Event";
+import {Event} from "./Event";
 import {Container} from "../store/Container";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {DateTimeLocal} from "../util/DateTimeLocal";
@@ -127,7 +127,7 @@ class UnconnectedEventPage extends React.Component<Props, State> {
             if (idOrNew === "new") {
                 // create a new event
                 this.setState({
-                    event: newEvent()
+                    event: Event.create(),
                 });
             } else if (Container.isReady(this.props.event)) {
                 // when the event has loaded, we copy it into state so we can work on a copy instead of changing the original

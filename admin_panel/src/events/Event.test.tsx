@@ -1,6 +1,6 @@
-import {Event, sortEvents} from './Event';
+import {Event} from './Event';
 
-describe("sortEvents", () => {
+describe("Event.sortStartTime", () => {
 
     const eventA : Event = {
         startTime: 100,
@@ -45,7 +45,7 @@ describe("sortEvents", () => {
 
     it("sorts A,B,C,D,E correctly", () => {
         let events = [eventC, eventB, eventA, eventE, eventD];
-        events = events.sort(sortEvents);
+        events = events.sort(Event.sortStartTime);
 
         expect(events).toEqual([eventD, eventA, eventB, eventC, eventE]);
     })
