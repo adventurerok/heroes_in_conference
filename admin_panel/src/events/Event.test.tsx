@@ -51,3 +51,33 @@ describe("Event.sortStartTime", () => {
     })
 
 });
+
+describe("Event.validationMessage", () => {
+
+    it("reports no name", () => {
+        const namelessEvent : Event = {
+            id: "id",
+            name: "", // empty name
+            description: "",
+            startTime: new Date(2017, 1, 1).getTime(),
+            endTime: new Date(2017, 1, 2).getTime(),
+        };
+
+        const msg = Event.validationMessage(namelessEvent);
+        expect(typeof msg).toEqual("string");
+    });
+
+    it("reports starting after ending", () => {
+        const backwardsEvent : Event = {
+            id: "id",
+            name: "Back to the Future",
+            description: "Great Scott!!",
+            startTime: new Date(2015, 10, 21).getTime(),
+            endTime: new Date(1985, 12, 4).getTime()
+        };
+
+        const msg = Event.validationMessage(backwardsEvent);
+        expect(typeof msg).toEqual("string");
+    });
+
+});

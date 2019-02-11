@@ -1,4 +1,4 @@
-import {compareAsc, differenceInMilliseconds} from 'date-fns';
+import {compareAsc, differenceInMilliseconds, isAfter} from 'date-fns';
 import * as uuidv4 from 'uuid/v4';
 
 // working with ms since epoch is easiest
@@ -47,7 +47,23 @@ function create(): Event {
     };
 }
 
+/**
+ * Gives a validation error message, or null if the event is fine
+ */
+function validationMessage(event: Event): string | null {
+    if(!event.name) {
+        return "Name field must not be empty";
+    }
+
+    if(isAfter(event.startTime, event.endTime)) {
+        return "Event must not start after it ends";
+    }
+
+    return null;
+}
+
 export const Event = {
     sortStartTime,
-    create
+    create,
+    validationMessage,
 };

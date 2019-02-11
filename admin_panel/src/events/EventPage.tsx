@@ -183,6 +183,15 @@ class UnconnectedEventPage extends React.Component<Props, State> {
             return;
         }
 
+        // validate input
+        const validationMessage = Event.validationMessage(this.state.event);
+        if(validationMessage !== null) {
+            this.setState({
+                statusMessage: validationMessage,
+            });
+            return;
+        }
+
         // pendingSave true tells componentDidUpdate to look for when the input event container changes to Synced
         this.setState({
             statusMessage: "Saving...",
