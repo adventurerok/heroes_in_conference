@@ -1,6 +1,7 @@
 import {API} from "./API";
 import {Event} from "../events/Event";
 import {IDMap} from "../store/IDMap";
+import {ConferenceMap} from "../maps/ConferenceMap";
 
 
 const mockEvents: IDMap<Event> = {
@@ -20,6 +21,19 @@ const mockEvents: IDMap<Event> = {
     }
 };
 
+const mockMaps : IDMap<ConferenceMap> = {
+    "1": {
+        id: "1",
+        name: "Top Floor",
+        path: "/images/top.png",
+    },
+    "2": {
+        id: "2",
+        name: "Bottom Floor",
+        path: "/images/bottom.png",
+    }
+};
+
 // the mock API that we use for manual testing
 export const MockAPI: API = {
 
@@ -33,12 +47,27 @@ export const MockAPI: API = {
 
     deleteEvent: async (id: string) => {
         if(!mockEvents[id]) {
-            throw Error(`Attempt to delete already deleted event with id ${id}`);
+            throw new Error(`Attempt to delete already deleted event with id ${id}`);
         }
 
         delete mockEvents[id];
     },
 
+    getMaps: async () => {
+        return IDMap.values(mockMaps);
+    },
+
+    updateMap: async (map: ConferenceMap) => {
+        mockMaps[map.id] = map;
+    },
+
+    deleteMap: async (id: string) => {
+        if(!mockMaps[id]) {
+            throw new Error(`Attempt to delete non-existent map with id ${id}`);
+        }
+
+        delete mockMaps[id];
+    },
 
 };
 

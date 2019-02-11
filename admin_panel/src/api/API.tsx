@@ -1,5 +1,6 @@
 import {Event} from "../events/Event";
 import {MockAPI} from "./MockAPI";
+import {ConferenceMap} from "../maps/ConferenceMap";
 
 export interface API {
 
@@ -11,6 +12,12 @@ export interface API {
 
     // update or create an event
     updateEvent: (event: Event) => Promise<void>,
+
+    getMaps: () => Promise<ConferenceMap[]>,
+
+    deleteMap: (id: string) => Promise<void>,
+
+    updateMap: (map: ConferenceMap) => Promise<void>,
 
 }
 
