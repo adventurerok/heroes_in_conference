@@ -33,7 +33,6 @@ class App extends React.Component {
                 </div>
             </nav>
             <div className="container">
-                <p>Hello there!</p>
                 <Route path="/map" component={MapPage}/>
                 <Route path="/events" component={EventListPage}/>
                 <Route path="/event/:id" component={EventPage}/>
