@@ -1,9 +1,9 @@
 import {ThunkAction} from "redux-thunk";
 import {AppState} from "./AppState";
-import {EventsLoadedAction} from "./actions/EventsLoaded";
-import {UpdateCachedEventAction} from "./actions/UpdateCachedEvent";
-import {EventsLoadingAction} from "./actions/EventsLoading";
-import {EventsLoadErrorAction} from "./actions/EventsLoadError";
+import {EventsLoadedAction} from "./actions/events/EventsLoaded";
+import {UpdateCachedEventAction} from "./actions/events/UpdateCachedEvent";
+import {EventsLoadingAction} from "./actions/events/EventsLoading";
+import {EventsLoadErrorAction} from "./actions/events/EventsLoadError";
 import {UpdateCachedMapAction} from "./actions/maps/UpdateCachedMap";
 import {UpdateMapCacheAction} from "./actions/maps/UpdateMapCache";
 

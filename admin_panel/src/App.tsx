@@ -3,7 +3,7 @@ import {Route} from "react-router";
 import './App.css';
 
 import {EventListPage} from "./events/EventListPage";
-import {MapPage} from "./map/MapPage";
+import {MapListPage} from "./maps/MapListPage";
 import {NavLink} from "react-router-dom";
 import {EventPage} from "./events/EventPage";
 
@@ -33,7 +33,7 @@ class App extends React.Component {
                 </div>
             </nav>
             <div className="container">
-                <Route path="/map" component={MapPage}/>
+                <Route path="/map" component={MapListPage}/>
                 <Route path="/events" component={EventListPage}/>
                 <Route path="/event/:id" component={EventPage}/>
             </div>
