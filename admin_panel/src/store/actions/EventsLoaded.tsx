@@ -8,6 +8,9 @@ export interface EventsLoadedAction extends Action<AppActionTypes> {
     events: Event[] // the list of events that we have loaded
 }
 
+/**
+ * Take these events and update the cache to include only these
+ */
 export function eventsLoaded(events: Event[]): EventsLoadedAction {
     return {
         type: AppActionTypes.EVENTS_LOADED,

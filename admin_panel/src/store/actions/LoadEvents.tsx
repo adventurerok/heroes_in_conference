@@ -5,6 +5,9 @@ import {eventsLoaded} from "./EventsLoaded";
 import {eventsLoadError} from "./EventsLoadError";
 
 
+/**
+ * Attempt to load all events from the server
+ */
 export function loadEvents(): AppThunkAction {
     return dispatch => {
 

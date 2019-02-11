@@ -1,12 +1,12 @@
-import {updateEvent} from "./UpdateEvent";
+import {updateCachedEvent} from "./UpdateCachedEvent";
 import {Container} from "../Container";
 import {Event} from "../../events/Event";
 
-describe("updateEvent", () => {
+describe("updateCachedEvent", () => {
 
     it("throws an error when no id is provided in any way", () => {
         expect(() => {
-            updateEvent(Container.empty());
+            updateCachedEvent(Container.empty());
         }).toThrow();
     });
 
@@ -21,7 +21,7 @@ describe("updateEvent", () => {
             description: "Yeet"
         } as Event, Date.now());
 
-        const action = updateEvent(fullContainer);
+        const action = updateCachedEvent(fullContainer);
 
         expect(action.eventId).toEqual(id);
     });

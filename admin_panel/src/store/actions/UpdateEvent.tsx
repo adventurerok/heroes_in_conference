@@ -1,27 +1,17 @@
+import {Container, ModifiedContainer} from "../Container";
+import {updateCachedEvent} from "./UpdateCachedEvent";
 import {Event} from "../../events/Event";
-import {AppActionTypes} from "../AppActions";
-import {Action} from "redux";
-import {Container} from "../Container";
+import {API} from "../../api/API";
+import {AppDispatch} from "../appStore";
 
-export interface UpdateEventAction extends Action<AppActionTypes> {
-    type: AppActionTypes.UPDATE_EVENT,
-    eventId: string,
-    event: Container<Event>,
-}
+/**
+ * Attempts to post event to server, and, if successful, updates the event in the cache.
+ */
+export function updateEvent(event: ModifiedContainer<Event>, dispatch: AppDispatch): Promise<void> {
+    dispatch(updateCachedEvent(event));
 
-export function updateEvent(event: Container<Event>, eventId?: string): UpdateEventAction {
-    let id = eventId;
-    if(!id) {
-        if(Container.isReady(event)) {
-            id = event.data.id;
-        } else {
-            throw Error("No id provided to updateEvent explicitly or from container");
-        }
-    }
-
-    return {
-        type: AppActionTypes.UPDATE_EVENT,
-        event,
-        eventId: id
-    }
+    return API.updateEvent(event.data).then(value => {
+        // we are now in sync
+        dispatch(updateCachedEvent(Container.synced(event.data, event.modified)));
+    });
 }

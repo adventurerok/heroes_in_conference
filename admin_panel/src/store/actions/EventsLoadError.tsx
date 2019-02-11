@@ -8,6 +8,9 @@ export interface EventsLoadErrorAction extends Action<AppActionTypes> {
     error: ErrorState,
 }
 
+/**
+ * Record an error that occurs when trying to load all events
+ */
 export function eventsLoadError(error: ErrorState): EventsLoadErrorAction {
     return {
         type: AppActionTypes.EVENTS_LOAD_ERROR,

@@ -8,7 +8,7 @@ import {Event, newEvent} from "./Event";
 import {Container} from "../store/Container";
 import {loadEvents} from "../store/actions/LoadEvents";
 import {DateTimeLocal} from "../util/DateTimeLocal";
-import {eventModified} from "../store/actions/EventModified";
+import {updateEvent} from "../store/actions/UpdateEvent";
 import {deleteEvent} from "../store/actions/DeleteEvent";
 
 interface RouteParams {
@@ -239,7 +239,7 @@ function mapStateToProps(state: AppState, ownProps: ConnectedProps): ReduxStateP
 function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     return {
         loadEvents: () => dispatch(loadEvents()),
-        updateEvent: (event) => eventModified(Container.modified(event, Date.now()), dispatch),
+        updateEvent: (event) => updateEvent(Container.modified(event, Date.now()), dispatch),
         deleteEvent: (event) => deleteEvent(event, dispatch)
     };
 }
