@@ -6,6 +6,8 @@ import {EventsLoadingAction} from "./actions/events/EventsLoading";
 import {EventsLoadErrorAction} from "./actions/events/EventsLoadError";
 import {UpdateCachedMapAction} from "./actions/maps/UpdateCachedMap";
 import {UpdateMapCacheAction} from "./actions/maps/UpdateMapCache";
+import {UpdateMarkerCacheAction} from "./actions/markers/UpdateMarkerCache";
+import {UpdateCachedMarkerAction} from "./actions/markers/UpdateCachedMarker";
 
 // these are the values the type field of the action can take
 export enum AppActionTypes {
@@ -16,6 +18,9 @@ export enum AppActionTypes {
 
     UPDATE_MAP_CACHE = "UPDATE_MAP_CACHE",
     UPDATE_CACHED_MAP = "UPDATE_CACHED_MAP",
+
+    UPDATE_MARKER_CACHE = "UPDATE_MARKER_CACHE",
+    UPDATE_CACHED_MARKER = "UPDATE_CACHED_MARKER",
 }
 
 
@@ -32,7 +37,12 @@ type MapAction =
     | UpdateMapCacheAction
     ;
 
-export type AppObjectAction = EventAction | MapAction;
+type MarkerAction =
+    UpdateCachedMarkerAction
+    | UpdateMarkerCacheAction
+    ;
+
+export type AppObjectAction = EventAction | MapAction | MarkerAction;
 
 // type of our redux-thunk actions. Type params = thunk return type, state type, enhancer, 'object' action type
 export type AppThunkAction = ThunkAction<any, AppState, any, AppObjectAction>;
