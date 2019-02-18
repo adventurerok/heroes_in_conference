@@ -128,9 +128,36 @@ function getItem<T>(c: Cache<T>, id: string): CacheItem<T> {
     }
 }
 
+/**
+ * Updates the cache for the item at the specified id.
+ *
+ */
+function updateItem<T>(c: Cache<T>, id: string, item: T | null): Cache<T> {
+    if(!Container.isReady(c)) {
+        // cache cannot be updated
+        return c;
+    }
+
+    const data = {...c.data};
+    if(item !== null) {
+        data[id] = item;
+    } else {
+        delete data[id];
+    }
+
+    // we use modified containers for this so that synced containers mean we have just read all items fro the server
+    return Container.modified(data, Date.now());
+}
+
+function buildCache<T>(items: IDMap<T>): Cache<T> {
+    return Container.synced(items, Date.now());
+}
+
 export const Cache = {
     isUnloaded: Container.isEmpty,
     isLoading: Container.isLoading,
     isLoaded: Container.isReady,
     getItem,
+    updateItem,
+    buildCache,
 };

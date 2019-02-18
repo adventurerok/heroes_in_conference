@@ -1,9 +1,9 @@
-import {IDMap} from "../IDMap";
 import {Container} from "../Container";
 import {ConferenceMap} from "../../maps/ConferenceMap";
 import {AppActionTypes, AppObjectAction} from "../AppActions";
+import {Cache} from "../Cache";
 
-export function reduceMapCache(state: Container<IDMap<ConferenceMap>> | undefined, action: AppObjectAction): Container<IDMap<ConferenceMap>> {
+export function reduceMapCache(state: Cache<ConferenceMap> | undefined, action: AppObjectAction): Cache<ConferenceMap> {
     switch(action.type){
         case AppActionTypes.UPDATE_MAP_CACHE: {
             // swap out the map cache for the new data
@@ -11,19 +11,7 @@ export function reduceMapCache(state: Container<IDMap<ConferenceMap>> | undefine
         }
         case AppActionTypes.UPDATE_CACHED_MAP: {
             // Update Cached Map shouldn't arrive unless we have the maps from the server
-            if(state && Container.isReady(state)) {
-                const mapMap = {...state.data};
-
-                if(action.map) {
-                    mapMap[action.mapId] = action.map;
-                } else {
-                    delete mapMap[action.mapId];
-                }
-
-                return Container.synced(mapMap, Date.now());
-            } else {
-                return state || Container.empty();
-            }
+            return state ? Cache.updateItem(state, action.mapId, action.map) : Container.empty();
         }
         default: {
             return state || Container.empty();
