@@ -4,6 +4,12 @@ import {connect} from "react-redux";
 import {AppState} from "../store/AppState";
 import {RouteComponentProps} from "react-router";
 import {Cache, CacheItem, CacheItemState} from "../store/Cache";
+import * as L from "leaflet";
+
+// no types for react-leaflet
+// @ts-ignore
+import * as RL from 'react-leaflet';
+const ReactLeaflet = RL as any;
 
 interface RouteParams {
     id: string,
@@ -32,6 +38,12 @@ class UnconnectedMapPage extends React.Component<Props, {}> {
             case CacheItemState.PRESENT: {
 
                 const map = this.props.map.item;
+                const bounds = [[0, 0], [1000, 1000]];
+
+                const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-5} bounds={bounds}>
+                    <ReactLeaflet.ImageOverlay url={process.env.PUBLIC_URL + map.path} bounds={bounds}/>
+                </ReactLeaflet.Map>;
+
                 return <>
                     <h1>Modifying Map</h1>
                     <form>
@@ -39,6 +51,7 @@ class UnconnectedMapPage extends React.Component<Props, {}> {
                             <label htmlFor="name">Map Name</label>
                             <input type="text" className="form-control" id="name"
                                    placeholder="Event Name" value={map.name} onChange={this.mapTitleChanged}/>
+                            {leafletMap}
                         </div>
                     </form>
                 </>;

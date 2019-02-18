@@ -10,7 +10,7 @@
 /build
 
 # mock API images
-/images
+/public/images
 
 # misc
 .DS_Store
