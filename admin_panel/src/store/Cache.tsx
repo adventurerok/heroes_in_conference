@@ -107,7 +107,7 @@ export type Cache<T> = Container<IDMap<T>>;
  *  Extract an item from the cache
  */
 function getItem<T>(c: Cache<T>, id: string): CacheItem<T> {
-    switch(c.state) {
+    switch (c.state) {
         case ContainerState.EMPTY: {
             return unloadedCacheItem();
         }
@@ -119,7 +119,7 @@ function getItem<T>(c: Cache<T>, id: string): CacheItem<T> {
         }
         case ContainerState.SYNCED:
         case ContainerState.MODIFIED: {
-            if(c.data[id]) {
+            if (c.data[id]) {
                 return presentCacheItem(c.data[id]);
             } else {
                 return notPresentCacheItem();
@@ -133,13 +133,13 @@ function getItem<T>(c: Cache<T>, id: string): CacheItem<T> {
  *
  */
 function updateItem<T>(c: Cache<T>, id: string, item: T | null): Cache<T> {
-    if(!Container.isReady(c)) {
+    if (!Container.isReady(c)) {
         // cache cannot be updated
         return c;
     }
 
     const data = {...c.data};
-    if(item !== null) {
+    if (item !== null) {
         data[id] = item;
     } else {
         delete data[id];
@@ -153,6 +153,36 @@ function buildCache<T>(items: IDMap<T>): Cache<T> {
     return Container.synced(items, Date.now());
 }
 
+// filter a cache to include only the items we want
+function filter<T>(c: Cache<T>, func: (item: T, id: string) => boolean): Cache<T> {
+    if (!Container.isReady(c)) {
+        // result is not ready
+        return c;
+    }
+
+    const data = c.data;
+    const resultData: IDMap<T> = {};
+
+    for (const id in data) {
+        if (!data.hasOwnProperty(id)) {
+            continue;
+        }
+
+        const item = data[id];
+
+        if (func(item, id)) {
+            resultData[id] = item;
+        }
+    }
+
+    // Give back the same type of container
+    if(Container.isModified(c)) {
+        return Container.modified(resultData, c.modified, c.error);
+    } else {
+        return Container.synced(resultData, c.modified);
+    }
+}
+
 export const Cache = {
     isUnloaded: Container.isEmpty,
     isLoading: Container.isLoading,
@@ -160,4 +190,5 @@ export const Cache = {
     getItem,
     updateItem,
     buildCache,
+    filter,
 };

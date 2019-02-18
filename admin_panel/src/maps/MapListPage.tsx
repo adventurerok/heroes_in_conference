@@ -7,9 +7,10 @@ import {connect} from "react-redux";
 import {AppState} from "../store/AppState";
 import {AppDispatch} from "../store/appStore";
 import {loadMaps} from "../store/actions/maps/LoadMaps";
+import {Cache} from "../store/Cache";
 
 interface ReduxStateProps {
-    maps: Container<IDMap<ConferenceMap>>,
+    maps: Cache<ConferenceMap>,
 }
 
 interface ReduxDispatchProps {

@@ -24,6 +24,11 @@ function filterOnMapId(id: string): (mark: MapMarker) => boolean {
     };
 }
 
+function sortByName(a: MapMarker, b: MapMarker): number {
+    return a.name.localeCompare(b.name);
+}
+
 export const MapMarker = {
     filterOnMapId,
+    sortByName,
 };
