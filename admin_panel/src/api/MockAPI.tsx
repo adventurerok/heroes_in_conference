@@ -2,6 +2,7 @@ import {API} from "./API";
 import {Event} from "../events/Event";
 import {IDMap} from "../store/IDMap";
 import {ConferenceMap} from "../maps/ConferenceMap";
+import {MapMarker} from "../maps/MapMarker";
 
 
 const mockEvents: IDMap<Event> = {
@@ -31,6 +32,39 @@ const mockMaps : IDMap<ConferenceMap> = {
         id: "2",
         name: "Bottom Floor",
         path: "/images/bottom.png",
+    }
+};
+
+const mockMarkers: IDMap<MapMarker> = {
+    "1": {
+        id: "1",
+        name: "Intel Lab",
+        mapId: "1",
+        pos: {
+            x: 100,
+            y: 200,
+        },
+        description: "Where the event is",
+    },
+    "2": {
+        id: "2",
+        name: "Other End of the Lab",
+        mapId: "1",
+        pos: {
+            x: 500,
+            y: 800,
+        },
+        description: "Yeet",
+    },
+    "3": {
+        id: "3",
+        name: "Cafe",
+        mapId: "2",
+        pos: {
+            x: 200,
+            y: 300,
+        },
+        description: "I'm hungry",
     }
 };
 
@@ -68,6 +102,22 @@ export const MockAPI: API = {
 
         delete mockMaps[id];
     },
+
+    getMapMarkers: async () => {
+        return IDMap.values(mockMarkers);
+    },
+
+    updateMapMarker: async (marker: MapMarker) => {
+        mockMarkers[marker.id] = marker;
+    },
+
+    deleteMapMarker: async (id: string) => {
+        if(!mockMarkers[id]) {
+            throw new Error(`Attempt to delete non-existent map marker with id ${id}`);
+        }
+
+        delete mockMarkers[id];
+    }
 
 };
 

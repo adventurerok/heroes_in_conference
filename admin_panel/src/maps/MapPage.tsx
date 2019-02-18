@@ -28,6 +28,7 @@ class UnconnectedMapPage extends React.Component<Props, {}> {
     public render(): React.ReactNode {
         switch(this.props.map.state) {
             case CacheItemState.CACHE_UNLOADED:
+                // FIXME we should really request to load it then
                 return <div>The map cache is unloaded, abort!</div>;
             case CacheItemState.CACHE_LOADING:
                 return <div>Loading map...</div>;
