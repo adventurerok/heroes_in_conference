@@ -78,7 +78,7 @@ class UnconnectedMapPage extends React.Component<Props, {}> {
 
                 const bounds = [[0, 0], [1000, 1000]];
 
-                const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-5} bounds={bounds}>
+                const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-1} bounds={bounds}>
                     <ReactLeaflet.ImageOverlay url={process.env.PUBLIC_URL + map.path} bounds={bounds}/>
                     {markersOnMap}
                 </ReactLeaflet.Map>;
