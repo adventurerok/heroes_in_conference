@@ -1,5 +1,5 @@
 import {IDMap} from "./IDMap";
-import {Container, ContainerState, ErrorState} from "./Container";
+import {Container, ContainerState, ErrorState, LoadedContainer, ReadyContainer} from "./Container";
 
 
 export enum CacheItemState {
@@ -108,6 +108,7 @@ export type Cache<T> = Container<IDMap<T>>;
  */
 function getItem<T>(c: Cache<T>, id: string): CacheItem<T> {
     switch (c.state) {
+        case ContainerState.DELETED:
         case ContainerState.EMPTY: {
             return unloadedCacheItem();
         }
@@ -191,4 +192,38 @@ export const Cache = {
     updateItem,
     buildCache,
     filter,
+};
+
+export type MutableCache<T> = Cache<LoadedContainer<T>>;
+
+function getMutableItem<T>(c: MutableCache<T>, id: string): CacheItem<ReadyContainer<T>> {
+    const result = Cache.getItem(c, id);
+
+    if(CacheItem.isPresent(result) && Container.isDeleted(result.item)) {
+        // have deleted cache items show up as not present
+        return notPresentCacheItem();
+    } else {
+        // we know that it can't be a DeletedContainer now, but TypeScript doesn't
+        return result as CacheItem<ReadyContainer<T>>;
+    }
+}
+
+
+function filterMutable<T>(c: MutableCache<T>, func: (item: T, id: string) => boolean) : MutableCache<T> {
+    return Cache.filter(c, (item, id) => {
+        if(Container.isSynced(item)) {
+            return func(item.data, id);
+        } else {
+            return false;
+        }
+    });
+}
+
+/**
+ * Mutable version of cache, with a few different methods
+ */
+export const MutableCache = {
+    ...Cache,
+    getItem: getMutableItem,
+    filter: filterMutable,
 };
