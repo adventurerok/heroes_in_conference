@@ -9,7 +9,7 @@ import * as L from "leaflet";
 // no types for react-leaflet
 // @ts-ignore
 import * as RL from 'react-leaflet';
-import {MapMarker} from "./MapMarker";
+import {GridPos, MapMarker} from "./MapMarker";
 import {AppDispatch} from "../store/appStore";
 import {loadMaps} from "../store/actions/maps/LoadMaps";
 import {loadMarkers} from "../store/actions/markers/LoadMarkers";
@@ -17,6 +17,7 @@ import {Container} from "../store/Container";
 import {IDMap} from "../store/IDMap";
 import {updateMap} from "../store/actions/maps/UpdateMap";
 import {deleteMap} from "../store/actions/maps/DeleteMap";
+import {Marker} from "leaflet";
 
 const ReactLeaflet = RL as any;
 
@@ -116,8 +117,8 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
         if (Container.isReady(this.props.markers)) {
             const markers = IDMap.values(this.props.markers.data).sort(MapMarker.sortByName);
-            markerList = markers.map(marker => <MarkerListItem key={marker.id} marker={marker}/>);
-            markersOnMap = markers.map(markerOnMap);
+            markerList = markers.map(m => <MarkerListItem key={m.id} marker={m}/>);
+            markersOnMap = markers.map(m => markerOnMap(m, this.markerDragged));
         }
 
         const bounds = [[0, 0], [1000, 1000]];
@@ -186,6 +187,22 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             }
         }
     };
+
+    private markerDragged = (marker: MapMarker, event: any) => {
+        console.log("A marker drag, oh boy! ");
+        console.dir(event);
+
+        const leafletMarker = event.target as Marker;
+        const latLng = leafletMarker.getLatLng();
+
+        const pos : GridPos = {
+            x: latLng.lng,
+            y: latLng.lat,
+        };
+
+        console.dir(pos);
+    };
+
 
     private mapTitleChanged = (e: ChangeEvent<HTMLInputElement>) => {
         if (!this.state.map) {
@@ -331,12 +348,17 @@ class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
     }
 }
 
-function markerOnMap(marker: MapMarker) {
+function markerOnMap(marker: MapMarker, dragHandler: (marker: MapMarker, event: any) => void) {
     // northing = y, easting = x,
     const pos = [marker.pos.y, marker.pos.x];
 
-    return <ReactLeaflet.Marker position={pos} key={marker.id}>
+    const onDrag = (dragEvent: any) => {
+          dragHandler(marker, dragEvent);
+    };
+
+    return <ReactLeaflet.Marker position={pos} key={marker.id} draggable={true} onDragend={onDrag}>
         <ReactLeaflet.Popup>
+            <h5>{marker.name}</h5>
             {marker.description}
         </ReactLeaflet.Popup>
     </ReactLeaflet.Marker>;
