@@ -15,6 +15,8 @@ import {loadMaps} from "../store/actions/maps/LoadMaps";
 import {loadMarkers} from "../store/actions/markers/LoadMarkers";
 import {Container} from "../store/Container";
 import {IDMap} from "../store/IDMap";
+import {updateMap} from "../store/actions/maps/UpdateMap";
+import {deleteMap} from "../store/actions/maps/DeleteMap";
 
 const ReactLeaflet = RL as any;
 
@@ -30,6 +32,8 @@ interface ReduxStateProps {
 interface ReduxDispatchProps {
     loadMaps: () => void,
     loadMarkers: () => void,
+    updateMap: (map: ConferenceMap, imageUrl?: string) => Promise<ConferenceMap>,
+    deleteMap: (map: ConferenceMap) => Promise<void>,
 }
 
 type ConnectedProps = RouteComponentProps<RouteParams>;
@@ -74,7 +78,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     }
 
     public componentWillUnmount(): void {
-        if(this.state.revokeURL) {
+        if (this.state.revokeURL) {
             // revoke the object url of a changed map
             URL.revokeObjectURL(this.state.revokeURL);
         }
@@ -92,7 +96,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 return <div>No maps exists with the ID, perhaps it was deleted</div>;
             case CacheItemState.PRESENT: {
 
-                if(this.state.map) {
+                if (this.state.map) {
                     return this.renderWithMap(this.state.map);
                 } else {
                     return <div>Awaiting map copy</div>;
@@ -122,7 +126,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
         const isNew = false;
 
         let mapUrl = map.path;
-        if(mapUrl.charAt(0) === "/") {
+        if (mapUrl.charAt(0) === "/") {
             mapUrl = process.env.PUBLIC_URL + mapUrl;
         }
 
@@ -144,6 +148,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                     <input type="file" className="form-control" id="image"
                            onChange={this.mapImageChanged}/>
                 </div>
+                <div>{this.state.statusMessage}</div>
                 <div>
                     <button type="button" className="btn btn-success mr-1" onClick={this.updateToServer}>
                         Save
@@ -171,8 +176,8 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     };
 
     private onUpdate = () => {
-        if(!this.state.map) {
-            if(CacheItem.isPresent(this.props.map)) {
+        if (!this.state.map) {
+            if (CacheItem.isPresent(this.props.map)) {
                 // TODO id or new
 
                 this.setState({
@@ -183,14 +188,14 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     };
 
     private mapTitleChanged = (e: ChangeEvent<HTMLInputElement>) => {
-        if(!this.state.map) {
+        if (!this.state.map) {
             return;
         }
 
         const newTitle = e.target.value;
 
         this.setState(state => {
-            if(!state.map) {
+            if (!state.map) {
                 throw new Error("We can't change state if we haven't loaded");
             }
 
@@ -204,7 +209,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     };
 
     private mapImageChanged = (e: ChangeEvent<HTMLInputElement>) => {
-        if(!this.state.map || !e.target.files || e.target.files.length === 0) {
+        if (!this.state.map || !e.target.files || e.target.files.length === 0) {
             return;
         }
 
@@ -213,35 +218,81 @@ class UnconnectedMapPage extends React.Component<Props, State> {
         console.log(url);
 
         this.setState(state => {
-             if(!state.map) {
-                 throw new Error("No more state");
-             }
+            if (!state.map) {
+                throw new Error("No more state");
+            }
 
-             if(state.revokeURL) {
-                 // ensure old object url is revoked before we update the revoke url
-                 URL.revokeObjectURL(state.revokeURL);
-             }
+            if (state.revokeURL) {
+                // ensure old object url is revoked before we update the revoke url
+                URL.revokeObjectURL(state.revokeURL);
+            }
 
-             return {
-                 map: {
-                     ...state.map,
-                     path: url,
-                 },
-                 revokeURL: url,
-             }
+            return {
+                map: {
+                    ...state.map,
+                    path: url,
+                },
+                revokeURL: url,
+            }
         });
     };
 
     private updateToServer = () => {
-        // TODO
+        // no saving if we haven't loaded yet!
+        if (!this.state.map) {
+            return;
+        }
+
+        // TODO validate
+
+        this.setState({
+            statusMessage: "Saving...",
+        });
+
+        this.props.updateMap(this.state.map, this.state.revokeURL)
+            .then(newMap => {
+                this.setState(state => {
+                    if (state.revokeURL) {
+                        URL.revokeObjectURL(state.revokeURL);
+                    }
+
+                    return {
+                        map: newMap,
+                        statusMessage: "Saved successfully!",
+                        revokeURL: undefined
+                    };
+                });
+            })
+            .catch(error => {
+                this.setState({
+                    statusMessage: `Failed to save map: ${error}`
+                });
+            })
     };
 
     private backToList = () => {
-        // TODO
+        // go back
+        this.props.history.replace("/maps");
     };
 
     private delete = () => {
-        // TODO
+        if (!this.state.map) {
+            return;
+        }
+
+        this.setState({
+            statusMessage: "Deleting...",
+        });
+
+        this.props.deleteMap(this.state.map)
+            .then(() => {
+                this.props.history.replace("/maps");
+            })
+            .catch(reason => {
+                this.setState({
+                    statusMessage: "Failed to delete"
+                });
+            });
     };
 
 }
@@ -259,6 +310,8 @@ function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     return {
         loadMaps: () => dispatch(loadMaps()),
         loadMarkers: () => dispatch(loadMarkers()),
+        updateMap: (map, imageUrl) => updateMap(map, imageUrl, dispatch),
+        deleteMap: (map) => deleteMap(map, dispatch),
     }
 }
 
@@ -282,7 +335,7 @@ function markerOnMap(marker: MapMarker) {
     // northing = y, easting = x,
     const pos = [marker.pos.y, marker.pos.x];
 
-    return <ReactLeaflet.Marker position={pos}>
+    return <ReactLeaflet.Marker position={pos} key={marker.id}>
         <ReactLeaflet.Popup>
             {marker.description}
         </ReactLeaflet.Popup>
