@@ -6,7 +6,7 @@ import {AppState} from "../store/AppState";
 import {RouteComponentProps} from "react-router";
 import {Cache, CacheItem, CacheItemState, MutableCache} from "../store/Cache";
 import * as L from "leaflet";
-import {Marker} from "leaflet";
+import {Map, Marker} from "leaflet";
 // no types for react-leaflet
 // @ts-ignore
 import * as RL from 'react-leaflet';
@@ -51,7 +51,7 @@ interface State {
 }
 
 class UnconnectedMapPage extends React.Component<Props, State> {
-
+    private mapRef = React.createRef<any>();
 
     constructor(props: Props, context: any) {
         super(props, context);
@@ -125,7 +125,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 .sort(MapMarker.sortByName);
 
             markerList = markers.map(m => <MarkerListItem key={m.id} marker={m} updateMarker={this.props.updateMarker}
-                                                          deleteMarker={this.props.deleteMarker}/>);
+                                                          deleteMarker={this.props.deleteMarker} panTo={this.panTo}/>);
             markersOnMap = markers.map(m => markerOnMap(m, this.markerDragged));
         }
 
@@ -139,10 +139,13 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             mapUrl = process.env.PUBLIC_URL + mapUrl;
         }
 
-        const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-1} maxZoom={3} bounds={bounds}>
+        const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-1} maxZoom={3} bounds={bounds}
+                                             ref={this.mapRef}>
             <ReactLeaflet.ImageOverlay url={mapUrl} bounds={bounds}/>
             {markersOnMap}
         </ReactLeaflet.Map>;
+
+        console.dir(this.mapRef);
 
         return <>
             <h1>Modifying Map</h1>
@@ -169,11 +172,16 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 <br/>
                 {leafletMap}
                 <br/>
-                <table className="table">
+                <div>
+                    <button type="button" className="btn btn-primary" onClick={this.newMarker}>New Marker</button>
+                </div>
+                <br/>
+                <table className="table table-bordered">
                     <thead>
                     <tr>
                         <th>Name</th>
                         <th>Desc</th>
+                        <th/>
                     </tr>
                     </thead>
                     <tbody>
@@ -182,6 +190,31 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 </table>
             </form>
         </>;
+    };
+
+    private newMarker = () => {
+        if (!this.mapRef.current || !CacheItem.isPresent(this.props.map)) {
+            // no map ref means we are trying to add a marker while loading, shouldn't happen
+            return;
+        }
+
+        const map = this.props.map.item;
+        const leafletMap: Map = this.mapRef.current.leafletElement;
+        const pos = GridPos.fromLatLng(leafletMap.getCenter());
+
+        const newMarker = MapMarker.create(map.id, pos);
+
+        this.props.updateMarker(newMarker);
+    };
+
+    private panTo = (marker: MapMarker) => {
+        if (!this.mapRef.current) {
+            return;
+        }
+
+        const leafletMap: Map = this.mapRef.current.leafletElement;
+
+        leafletMap.flyTo(GridPos.toLatLng(marker.pos), 1);
     };
 
     private onUpdate = () => {
@@ -348,23 +381,38 @@ interface MarkerListItemProps {
     marker: MapMarker,
     updateMarker: (marker: MapMarker) => void,
     deleteMarker: (marker: MapMarker) => void,
+    panTo: (marker: MapMarker) => void,
 }
 
 class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
 
     public render(): React.ReactNode {
         return <tr>
-            <td><input type='text' value={this.props.marker.name} name='name' onChange={this.textChanged}/></td>
-            <td><input type='text' value={this.props.marker.description} name='description'
+            <td className='table-half-expand'><input type='text' className='marker-table-input' value={this.props.marker.name} name='name'
+                       onChange={this.textChanged} autoFocus={this.props.marker.name === "New Marker"}/></td>
+            <td className='table-expand'><input type='text' className='marker-table-input' value={this.props.marker.description}
+                       name='description'
                        onChange={this.textChanged}/></td>
+            <td className='table-shrink'>
+                <button type='button' className='btn btn-info mr-1' onClick={this.panTo}>Locate</button>
+                <button type='button' className='btn btn-danger' onClick={this.delete}>&times;</button>
+            </td>
         </tr>;
     }
 
-    private textChanged = (e: ChangeEvent<HTMLInputElement>) => {
+    private textChanged = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         this.props.updateMarker({
             ...this.props.marker,
             [e.target.name]: e.target.value,
         });
+    };
+
+    private panTo = () => {
+        this.props.panTo(this.props.marker);
+    };
+
+    private delete = () => {
+        this.props.deleteMarker(this.props.marker);
     }
 }
 
