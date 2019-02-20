@@ -211,7 +211,7 @@ function getMutableItem<T>(c: MutableCache<T>, id: string): CacheItem<ReadyConta
 
 function filterMutable<T>(c: MutableCache<T>, func: (item: T, id: string) => boolean) : MutableCache<T> {
     return Cache.filter(c, (item, id) => {
-        if(Container.isSynced(item)) {
+        if(Container.isReady(item)) {
             return func(item.data, id);
         } else {
             return false;

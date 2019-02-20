@@ -4,8 +4,9 @@ import {ConferenceMap} from "./ConferenceMap";
 import {connect} from "react-redux";
 import {AppState} from "../store/AppState";
 import {RouteComponentProps} from "react-router";
-import {Cache, CacheItem, CacheItemState} from "../store/Cache";
+import {Cache, CacheItem, CacheItemState, MutableCache} from "../store/Cache";
 import * as L from "leaflet";
+import {Marker} from "leaflet";
 // no types for react-leaflet
 // @ts-ignore
 import * as RL from 'react-leaflet';
@@ -17,7 +18,7 @@ import {Container} from "../store/Container";
 import {IDMap} from "../store/IDMap";
 import {updateMap} from "../store/actions/maps/UpdateMap";
 import {deleteMap} from "../store/actions/maps/DeleteMap";
-import {Marker} from "leaflet";
+import {updateCachedMarker} from "../store/actions/markers/UpdateCachedMarker";
 
 const ReactLeaflet = RL as any;
 
@@ -27,7 +28,7 @@ interface RouteParams {
 
 interface ReduxStateProps {
     map: CacheItem<ConferenceMap>,
-    markers: Cache<MapMarker>,
+    markers: MutableCache<MapMarker>,
 }
 
 interface ReduxDispatchProps {
@@ -35,6 +36,8 @@ interface ReduxDispatchProps {
     loadMarkers: () => void,
     updateMap: (map: ConferenceMap, imageUrl?: string) => Promise<ConferenceMap>,
     deleteMap: (map: ConferenceMap) => Promise<void>,
+    updateMarker: (marker: MapMarker) => void,
+    deleteMarker: (marker: MapMarker) => void,
 }
 
 type ConnectedProps = RouteComponentProps<RouteParams>;
@@ -116,8 +119,13 @@ class UnconnectedMapPage extends React.Component<Props, State> {
         let markersOnMap = null;
 
         if (Container.isReady(this.props.markers)) {
-            const markers = IDMap.values(this.props.markers.data).sort(MapMarker.sortByName);
-            markerList = markers.map(m => <MarkerListItem key={m.id} marker={m}/>);
+            const markers = IDMap.values(this.props.markers.data)
+                .filter(Container.isReady)
+                .map(c => c.data)
+                .sort(MapMarker.sortByName);
+
+            markerList = markers.map(m => <MarkerListItem key={m.id} marker={m} updateMarker={this.props.updateMarker}
+                                                          deleteMarker={this.props.deleteMarker}/>);
             markersOnMap = markers.map(m => markerOnMap(m, this.markerDragged));
         }
 
@@ -189,18 +197,18 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     };
 
     private markerDragged = (marker: MapMarker, event: any) => {
-        console.log("A marker drag, oh boy! ");
-        console.dir(event);
-
         const leafletMarker = event.target as Marker;
         const latLng = leafletMarker.getLatLng();
 
-        const pos : GridPos = {
+        const pos: GridPos = {
             x: latLng.lng,
             y: latLng.lat,
         };
 
-        console.dir(pos);
+        this.props.updateMarker({
+            ...marker,
+            pos,
+        });
     };
 
 
@@ -319,7 +327,7 @@ function mapStateToProps(state: AppState, ownProps: ConnectedProps): ReduxStateP
 
     return {
         map: Cache.getItem(state.mapCache, mapId),
-        markers: Cache.filter(state.markerCache, item => item.mapId === mapId),
+        markers: MutableCache.filter(state.markerCache, item => item.mapId === mapId),
     };
 }
 
@@ -329,6 +337,8 @@ function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
         loadMarkers: () => dispatch(loadMarkers()),
         updateMap: (map, imageUrl) => updateMap(map, imageUrl, dispatch),
         deleteMap: (map) => deleteMap(map, dispatch),
+        updateMarker: marker => dispatch(updateCachedMarker(Container.modified(marker, Date.now()))),
+        deleteMarker: marker => dispatch(updateCachedMarker(Container.deleted(Date.now()), marker.id)),
     }
 }
 
@@ -336,15 +346,25 @@ export const MapPage = connect(mapStateToProps, mapDispatchToProps)(UnconnectedM
 
 interface MarkerListItemProps {
     marker: MapMarker,
+    updateMarker: (marker: MapMarker) => void,
+    deleteMarker: (marker: MapMarker) => void,
 }
 
 class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
 
     public render(): React.ReactNode {
         return <tr>
-            <td>{this.props.marker.name}</td>
-            <td>{this.props.marker.description}</td>
+            <td><input type='text' value={this.props.marker.name} name='name' onChange={this.textChanged}/></td>
+            <td><input type='text' value={this.props.marker.description} name='description'
+                       onChange={this.textChanged}/></td>
         </tr>;
+    }
+
+    private textChanged = (e: ChangeEvent<HTMLInputElement>) => {
+        this.props.updateMarker({
+            ...this.props.marker,
+            [e.target.name]: e.target.value,
+        });
     }
 }
 
@@ -353,7 +373,7 @@ function markerOnMap(marker: MapMarker, dragHandler: (marker: MapMarker, event: 
     const pos = [marker.pos.y, marker.pos.x];
 
     const onDrag = (dragEvent: any) => {
-          dragHandler(marker, dragEvent);
+        dragHandler(marker, dragEvent);
     };
 
     return <ReactLeaflet.Marker position={pos} key={marker.id} draggable={true} onDragend={onDrag}>

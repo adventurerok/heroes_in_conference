@@ -13,8 +13,17 @@ export function loadMarkers(): AppThunkAction {
 
         API.getMapMarkers()
             .then(markers => {
-                const idMapOfMarkers = IDMap.fromArray(markers, map => map.id);
-                dispatch(updateMarkerCache(Container.synced(idMapOfMarkers, Date.now())));
+                // use the same time for all containers
+                const currentTime = Date.now();
+
+                // loaded containers
+                const containers = markers.map(marker => Container.synced(marker, currentTime));
+
+                // IDMap
+                const idMapOfMarkers = IDMap.fromArray(containers, marker => marker.data.id);
+
+                // MutableCache is really just Container<IDMap<LoadedContainer<T>>>
+                dispatch(updateMarkerCache(Container.synced(idMapOfMarkers, currentTime)));
             })
             .catch(reason => {
                 const error: ErrorState = {

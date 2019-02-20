@@ -1,16 +1,15 @@
 import {Action} from "redux";
 import {AppActionTypes} from "../../AppActions";
-import {IDMap} from "../../IDMap";
-import {Container} from "../../Container";
 import {MapMarker} from "../../../maps/MapMarker";
+import {MutableCache} from "../../Cache";
 
 
 export interface UpdateMarkerCacheAction extends Action<AppActionTypes> {
     type: AppActionTypes.UPDATE_MARKER_CACHE,
-    cache: Container<IDMap<MapMarker>>,
+    cache: MutableCache<MapMarker>,
 }
 
-export function updateMarkerCache(cache: Container<IDMap<MapMarker>>): UpdateMarkerCacheAction {
+export function updateMarkerCache(cache: MutableCache<MapMarker>): UpdateMarkerCacheAction {
     return {
         type: AppActionTypes.UPDATE_MARKER_CACHE,
         cache,

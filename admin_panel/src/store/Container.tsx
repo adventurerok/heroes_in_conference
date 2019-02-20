@@ -154,6 +154,54 @@ function isReady<T>(c: Container<T>): c is ReadyContainer<T> {
     return c.state === ContainerState.SYNCED || c.state === ContainerState.MODIFIED;
 }
 
+function getDate<T>(c: Container<T>): number | undefined {
+    switch(c.state) {
+        case ContainerState.SYNCED:
+        case ContainerState.MODIFIED:
+        case ContainerState.DELETED:
+            return c.modified;
+        case ContainerState.LOADING:
+            return c.timeStartedLoading;
+        case ContainerState.ERRORED:
+            return c.error.timeErrored;
+        default:
+            return undefined;
+    }
+}
+
+/**
+ * Sort by data, and then by date, showing empty container last
+ */
+function sort<T>(comparator: (a: T, b: T) => number): (a: Container<T>, b: Container<T>) => number {
+    return (a, b) => {
+        if(Container.isEmpty(a)) {
+            if(Container.isEmpty(b)) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else if(Container.isEmpty(b)) {
+            return -1;
+        }
+
+        if(Container.isReady(a)) {
+            if(Container.isReady(b)) {
+                const dataCompare = comparator(a.data, b.data);
+                if(dataCompare) {
+                    return dataCompare;
+                }
+            } else {
+                // a is before b
+                return -1;
+            }
+        } else if(Container.isReady(b)) {
+            return 1;
+        }
+
+        return (getDate(a) || 0) - (getDate(b) || 0);
+    };
+}
+
 export const Container = {
     empty,
     loading,
@@ -168,5 +216,7 @@ export const Container = {
     isModified,
     isDeleted,
     isReady,
+    getDate,
+    sort,
 };
 
