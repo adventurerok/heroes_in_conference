@@ -126,7 +126,8 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 .sort(MapMarker.sortByName);
 
             markerList = markers.map(m => <MarkerListItem key={m.id} marker={m} updateMarker={this.props.updateMarker}
-                                                          deleteMarker={this.props.deleteMarker} panTo={this.panTo}/>);
+                                                          deleteMarker={this.props.deleteMarker} panTo={this.panTo}
+                                                          saveMarkers={this.props.saveMarkers}/>);
             markersOnMap = markers.map(m => markerOnMap(m, this.markerDragged));
         }
 
@@ -275,6 +276,9 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             ...marker,
             pos,
         });
+
+        // save markers back to server
+        this.props.saveMarkers();
     };
 
 
@@ -340,6 +344,9 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             });
             return;
         }
+
+        // ensure markers are saved
+        this.props.saveMarkers();
 
         const isNew = this.props.match.params.id === "new";
 
@@ -434,6 +441,7 @@ interface MarkerListItemProps {
     updateMarker: (marker: MapMarker) => void,
     deleteMarker: (marker: MapMarker) => void,
     panTo: (marker: MapMarker) => void,
+    saveMarkers: () => void,
 }
 
 class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
@@ -449,8 +457,11 @@ class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
                                                 name='description'
                                                 onChange={this.textChanged}/></td>
             <td className='table-shrink'>
-                <button type='button' className='btn btn-info mr-1' onClick={this.panTo}>Locate</button>
-                <button type='button' className='btn btn-danger' onClick={this.delete}>&times;</button>
+                <button type='button' className='btn btn-info mr-1' onClick={this.panTo}
+                        onBlur={this.props.saveMarkers}>Locate
+                </button>
+                <button type='button' className='btn btn-danger' onClick={this.delete}
+                        onBlur={this.props.saveMarkers}>&times;</button>
             </td>
         </tr>;
     }
