@@ -6,7 +6,7 @@ import {AppState} from "../store/AppState";
 import {RouteComponentProps} from "react-router";
 import {Cache, CacheItem, CacheItemState, MutableCache} from "../store/Cache";
 import * as L from "leaflet";
-import {Map, Marker} from "leaflet";
+import {LatLngBoundsLiteral, Map, Marker} from "leaflet";
 // no types for react-leaflet
 // @ts-ignore
 import * as RL from 'react-leaflet';
@@ -48,6 +48,7 @@ interface State {
     map?: ConferenceMap,
     statusMessage?: string,
     revokeURL?: string,
+    bounds?: LatLngBoundsLiteral
 }
 
 class UnconnectedMapPage extends React.Component<Props, State> {
@@ -129,7 +130,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             markersOnMap = markers.map(m => markerOnMap(m, this.markerDragged));
         }
 
-        const bounds = [[0, 0], [1000, 1000]];
+        const bounds = this.state.bounds || [[0, 0], [1000, 1000]];
 
         // TODO new maps
         const isNew = false;
@@ -141,11 +142,10 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
         const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-1} maxZoom={3} bounds={bounds}
                                              ref={this.mapRef}>
-            <ReactLeaflet.ImageOverlay url={mapUrl} bounds={bounds}/>
+            <ReactLeaflet.ImageOverlay url={mapUrl} bounds={bounds} onLoad={this.mapImageLoad}/>
             {markersOnMap}
         </ReactLeaflet.Map>;
 
-        console.dir(this.mapRef);
 
         return <>
             <h1>Modifying Map</h1>
@@ -190,6 +190,23 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 </table>
             </form>
         </>;
+    };
+
+    private mapImageLoad = (e: any) => {
+        const image : HTMLImageElement = e.sourceTarget.getElement();
+
+        // We recompute the bounds to allow maps with different aspect ratios
+        const aspect = image.naturalWidth / image.naturalHeight;
+        let newBounds : LatLngBoundsLiteral;
+        if(aspect >= 1) {
+            newBounds = [[0,0], [1000, Math.floor(aspect * 1000)]];
+        } else {
+            newBounds = [[0,0], [Math.floor(1000 / aspect), 1000]];
+        }
+
+        this.setState({
+            bounds: newBounds,
+        });
     };
 
     private newMarker = () => {
