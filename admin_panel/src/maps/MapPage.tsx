@@ -289,8 +289,6 @@ class UnconnectedMapPage extends React.Component<Props, State> {
         }
 
         const url = URL.createObjectURL(e.target.files[0]);
-        // TODO object url needs revoking
-        console.log(url);
 
         this.setState(state => {
             if (!state.map) {
@@ -318,7 +316,14 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             return;
         }
 
-        // TODO validate
+        // validate
+        const validationMessage = ConferenceMap.validationMessage(this.state.map);
+        if(validationMessage !== null) {
+            this.setState({
+                statusMessage: validationMessage,
+            });
+            return;
+        }
 
         this.setState({
             statusMessage: "Saving...",
