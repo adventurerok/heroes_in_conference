@@ -151,14 +151,14 @@ function updateItem<T>(c: Cache<T>, id: string, item: T | null): Cache<T> {
 }
 
 function updateItems<T>(c: Cache<T>, items: IDMap<T | null>): Cache<T> {
-    if(!Container.isReady(c)) {
+    if (!Container.isReady(c)) {
         // cache cannot be updated
         return c;
     }
 
     const data = {...c.data};
     IDMap.iterate(items, (item, id) => {
-        if(item !== null) {
+        if (item !== null) {
             data[id] = item;
         } else {
             delete data[id];
@@ -196,7 +196,7 @@ function filter<T>(c: Cache<T>, func: (item: T, id: string) => boolean): Cache<T
     }
 
     // Give back the same type of container
-    if(Container.isModified(c)) {
+    if (Container.isModified(c)) {
         return Container.modified(resultData, c.modified, c.error);
     } else {
         return Container.synced(resultData, c.modified);
@@ -219,7 +219,7 @@ export type MutableCache<T> = Cache<LoadedContainer<T>>;
 function getMutableItem<T>(c: MutableCache<T>, id: string): CacheItem<ReadyContainer<T>> {
     const result = Cache.getItem(c, id);
 
-    if(CacheItem.isPresent(result) && Container.isDeleted(result.item)) {
+    if (CacheItem.isPresent(result) && Container.isDeleted(result.item)) {
         // have deleted cache items show up as not present
         return notPresentCacheItem();
     } else {
@@ -229,14 +229,56 @@ function getMutableItem<T>(c: MutableCache<T>, id: string): CacheItem<ReadyConta
 }
 
 
-function filterMutable<T>(c: MutableCache<T>, func: (item: T, id: string) => boolean) : MutableCache<T> {
+function filterMutable<T>(c: MutableCache<T>, func: (item: T, id: string) => boolean): MutableCache<T> {
     return Cache.filter(c, (item, id) => {
-        if(Container.isReady(item)) {
+        if (Container.isReady(item)) {
             return func(item.data, id);
         } else {
             return false;
         }
     });
+}
+
+function updateMutableItem<T>(c: MutableCache<T>, id: string, item: LoadedContainer<T> | null): MutableCache<T> {
+    if (!Container.isReady(c)) {
+        // cache cannot be updated
+        return c;
+    }
+
+    const data = {...c.data};
+    if (item !== null) {
+        // we want to avoid overwriting new data
+        if (!data[id] || data[id].modified <= item.modified) {
+            data[id] = item;
+        }
+    } else {
+        delete data[id];
+    }
+
+    // we use modified containers for this so that synced containers mean we have just read all items fro the server
+    return Container.modified(data, Date.now());
+}
+
+function updateMutableItems<T>(c: MutableCache<T>, items: IDMap<LoadedContainer<T> | null>): MutableCache<T> {
+    if (!Container.isReady(c)) {
+        // cache cannot be updated
+        return c;
+    }
+
+    const data = {...c.data};
+    IDMap.iterate(items, (item, id) => {
+        if (item !== null) {
+            // we want to avoid overwriting new data
+            if (!data[id] || data[id].modified <= item.modified) {
+                data[id] = item;
+            }
+        } else {
+            delete data[id];
+        }
+    });
+
+    // modified container, as we have modified data since receiving it from the server
+    return Container.modified(data, Date.now());
 }
 
 /**
@@ -246,4 +288,6 @@ export const MutableCache = {
     ...Cache,
     getItem: getMutableItem,
     filter: filterMutable,
+    updateItem: updateMutableItem,
+    updateItems: updateMutableItems,
 };

@@ -1,6 +1,6 @@
 import {Container} from "../Container";
 import {AppActionTypes, AppObjectAction} from "../AppActions";
-import {Cache, MutableCache} from "../Cache";
+import {MutableCache} from "../Cache";
 import {MapMarker} from "../../maps/MapMarker";
 
 export function reduceMarkerCache(state: MutableCache<MapMarker> | undefined, action: AppObjectAction): MutableCache<MapMarker> {
@@ -11,7 +11,7 @@ export function reduceMarkerCache(state: MutableCache<MapMarker> | undefined, ac
         }
         case AppActionTypes.UPDATE_CACHED_MARKERS: {
             // Update Cached Marker shouldn't arrive unless we have the maps from the server
-            return state ? Cache.updateItems(state, action.markers) : Container.empty();
+            return state ? MutableCache.updateItems(state, action.markers) : Container.empty();
         }
         default: {
             return state || Container.empty();
