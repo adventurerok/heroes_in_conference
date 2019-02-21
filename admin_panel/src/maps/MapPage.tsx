@@ -90,6 +90,10 @@ class UnconnectedMapPage extends React.Component<Props, State> {
     }
 
     public render(): React.ReactNode {
+        if (this.state.map) {
+            return this.renderWithMap(this.state.map);
+        }
+
         switch (this.props.map.state) {
             case CacheItemState.CACHE_UNLOADED:
                 return <div>The map cache is unloaded, abort!</div>;
@@ -100,13 +104,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             case CacheItemState.NOT_PRESENT:
                 return <div>No maps exists with the ID, perhaps it was deleted</div>;
             case CacheItemState.PRESENT: {
-
-                if (this.state.map) {
-                    return this.renderWithMap(this.state.map);
-                } else {
-                    return <div>Awaiting map copy</div>;
-                }
-
+                return <div>Awaiting map to be copied into state</div>;
             }
         }
     }
@@ -132,8 +130,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
         const bounds = this.state.bounds || [[0, 0], [1000, 1000]];
 
-        // TODO new maps
-        const isNew = false;
+        const isNew = this.props.match.params.id === "new";
 
         let mapUrl = map.path;
         if (mapUrl.charAt(0) === "/") {
@@ -146,9 +143,34 @@ class UnconnectedMapPage extends React.Component<Props, State> {
             {markersOnMap}
         </ReactLeaflet.Map>;
 
+        let markerListSection;
+        if (isNew) {
+            markerListSection = <div>Please save the map to add markers.</div>;
+        } else {
+            markerListSection =
+                <>
+                    <div>
+                        <button type="button" className="btn btn-primary" onClick={this.newMarker}>New Marker</button>
+                    </div>
+                    <br/>
+                    <table className="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Desc</th>
+                            <th/>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {markerList}
+                        </tbody>
+                    </table>
+                </>;
+        }
+
 
         return <>
-            <h1>Modifying Map</h1>
+            <h1>{isNew ? 'Creating Map' : 'Modifying Map'}</h1>
             <form>
                 <div className="form-group">
                     <label htmlFor="name">Map Name</label>
@@ -172,36 +194,21 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 <br/>
                 {leafletMap}
                 <br/>
-                <div>
-                    <button type="button" className="btn btn-primary" onClick={this.newMarker}>New Marker</button>
-                </div>
-                <br/>
-                <table className="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Desc</th>
-                        <th/>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {markerList}
-                    </tbody>
-                </table>
+                {markerListSection}
             </form>
         </>;
     };
 
     private mapImageLoad = (e: any) => {
-        const image : HTMLImageElement = e.sourceTarget.getElement();
+        const image: HTMLImageElement = e.sourceTarget.getElement();
 
         // We recompute the bounds to allow maps with different aspect ratios
         const aspect = image.naturalWidth / image.naturalHeight;
-        let newBounds : LatLngBoundsLiteral;
-        if(aspect >= 1) {
-            newBounds = [[0,0], [1000, Math.floor(aspect * 1000)]];
+        let newBounds: LatLngBoundsLiteral;
+        if (aspect >= 1) {
+            newBounds = [[0, 0], [1000, Math.floor(aspect * 1000)]];
         } else {
-            newBounds = [[0,0], [Math.floor(1000 / aspect), 1000]];
+            newBounds = [[0, 0], [Math.floor(1000 / aspect), 1000]];
         }
 
         this.setState({
@@ -236,6 +243,12 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
     private onUpdate = () => {
         if (!this.state.map) {
+            const idOrNew = this.props.match.params.id;
+            if (idOrNew === "new") {
+                this.setState({
+                    map: ConferenceMap.create(),
+                });
+            }
             if (CacheItem.isPresent(this.props.map)) {
                 // TODO id or new
 
@@ -318,12 +331,14 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
         // validate
         const validationMessage = ConferenceMap.validationMessage(this.state.map);
-        if(validationMessage !== null) {
+        if (validationMessage !== null) {
             this.setState({
                 statusMessage: validationMessage,
             });
             return;
         }
+
+        const isNew = this.props.match.params.id === "new";
 
         this.setState({
             statusMessage: "Saving...",
@@ -342,6 +357,11 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                         revokeURL: undefined
                     };
                 });
+
+                if (isNew) {
+                    // Go to the proper page for the map
+                    this.props.history.replace(`/map/${newMap.id}`);
+                }
             })
             .catch(error => {
                 this.setState({
@@ -410,11 +430,14 @@ class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
 
     public render(): React.ReactNode {
         return <tr>
-            <td className='table-half-expand'><input type='text' className='marker-table-input' value={this.props.marker.name} name='name'
-                       onChange={this.textChanged} autoFocus={this.props.marker.name === "New Marker"}/></td>
-            <td className='table-expand'><input type='text' className='marker-table-input' value={this.props.marker.description}
-                       name='description'
-                       onChange={this.textChanged}/></td>
+            <td className='table-half-expand'><input type='text' className='marker-table-input'
+                                                     value={this.props.marker.name} name='name'
+                                                     onChange={this.textChanged}
+                                                     autoFocus={this.props.marker.name === "New Marker"}/></td>
+            <td className='table-expand'><input type='text' className='marker-table-input'
+                                                value={this.props.marker.description}
+                                                name='description'
+                                                onChange={this.textChanged}/></td>
             <td className='table-shrink'>
                 <button type='button' className='btn btn-info mr-1' onClick={this.panTo}>Locate</button>
                 <button type='button' className='btn btn-danger' onClick={this.delete}>&times;</button>

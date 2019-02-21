@@ -1,6 +1,6 @@
 import * as React from "react";
 import {ConferenceMap} from "./ConferenceMap";
-import {Link} from "react-router-dom";
+import {Link, RouteComponentProps} from "react-router-dom";
 import {IDMap} from "../store/IDMap";
 import {Container} from "../store/Container";
 import {connect} from "react-redux";
@@ -17,7 +17,7 @@ interface ReduxDispatchProps {
     loadMaps: () => void,
 }
 
-type Props = ReduxStateProps & ReduxDispatchProps;
+type Props = RouteComponentProps<{}> & ReduxStateProps & ReduxDispatchProps;
 
 class UnconnectedMapListPage extends React.Component<Props, {}> {
 
@@ -54,7 +54,7 @@ class UnconnectedMapListPage extends React.Component<Props, {}> {
     }
 
     private newMap = () => {
-        // TODO go to new map page
+        this.props.history.push("/map/new");
     };
 }
 
