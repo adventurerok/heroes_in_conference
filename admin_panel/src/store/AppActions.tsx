@@ -7,7 +7,7 @@ import {EventsLoadErrorAction} from "./actions/events/EventsLoadError";
 import {UpdateCachedMapAction} from "./actions/maps/UpdateCachedMap";
 import {UpdateMapCacheAction} from "./actions/maps/UpdateMapCache";
 import {UpdateMarkerCacheAction} from "./actions/markers/UpdateMarkerCache";
-import {UpdateCachedMarkerAction} from "./actions/markers/UpdateCachedMarker";
+import {UpdateCachedMarkersAction} from "./actions/markers/UpdateCachedMarkers";
 
 // these are the values the type field of the action can take
 export enum AppActionTypes {
@@ -20,7 +20,7 @@ export enum AppActionTypes {
     UPDATE_CACHED_MAP = "UPDATE_CACHED_MAP",
 
     UPDATE_MARKER_CACHE = "UPDATE_MARKER_CACHE",
-    UPDATE_CACHED_MARKER = "UPDATE_CACHED_MARKER",
+    UPDATE_CACHED_MARKERS = "UPDATE_CACHED_MARKER",
 }
 
 
@@ -38,7 +38,7 @@ type MapAction =
     ;
 
 type MarkerAction =
-    UpdateCachedMarkerAction
+    UpdateCachedMarkersAction
     | UpdateMarkerCacheAction
     ;
 

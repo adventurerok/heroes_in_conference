@@ -18,7 +18,8 @@ import {Container} from "../store/Container";
 import {IDMap} from "../store/IDMap";
 import {updateMap} from "../store/actions/maps/UpdateMap";
 import {deleteMap} from "../store/actions/maps/DeleteMap";
-import {updateCachedMarker} from "../store/actions/markers/UpdateCachedMarker";
+import {updateCachedMarkers} from "../store/actions/markers/UpdateCachedMarkers";
+import {saveMarkers} from "../store/actions/markers/SaveMarkers";
 
 const ReactLeaflet = RL as any;
 
@@ -38,6 +39,7 @@ interface ReduxDispatchProps {
     deleteMap: (map: ConferenceMap) => Promise<void>,
     updateMarker: (marker: MapMarker) => void,
     deleteMarker: (marker: MapMarker) => void,
+    saveMarkers: () => void,
 }
 
 type ConnectedProps = RouteComponentProps<RouteParams>;
@@ -153,6 +155,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                         <button type="button" className="btn btn-primary" onClick={this.newMarker}>New Marker</button>
                     </div>
                     <br/>
+                    Markers are saved automatically.
                     <table className="table table-bordered">
                         <thead>
                         <tr>
@@ -412,8 +415,15 @@ function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
         loadMarkers: () => dispatch(loadMarkers()),
         updateMap: (map, imageUrl) => updateMap(map, imageUrl, dispatch),
         deleteMap: (map) => deleteMap(map, dispatch),
-        updateMarker: marker => dispatch(updateCachedMarker(Container.modified(marker, Date.now()))),
-        deleteMarker: marker => dispatch(updateCachedMarker(Container.deleted(Date.now()), marker.id)),
+        updateMarker: marker => dispatch(updateCachedMarkers(
+            {
+                [marker.id]: Container.modified(marker, Date.now())
+            })),
+        deleteMarker: marker => dispatch(updateCachedMarkers(
+            {
+                [marker.id]: Container.deleted(Date.now())
+            })),
+        saveMarkers: () => dispatch(saveMarkers()),
     }
 }
 

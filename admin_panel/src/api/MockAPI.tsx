@@ -111,17 +111,18 @@ export const MockAPI: API = {
         return IDMap.values(mockMarkers);
     },
 
-    updateMapMarker: async (marker: MapMarker) => {
-        mockMarkers[marker.id] = marker;
-    },
-
-    deleteMapMarker: async (id: string) => {
-        if(!mockMarkers[id]) {
-            throw new Error(`Attempt to delete non-existent map marker with id ${id}`);
+    updateMapMarkers: async (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => {
+        // update modified markers
+        for (const marker of modifiedMarkers) {
+            mockMarkers[marker.id] = marker;
         }
 
-        delete mockMarkers[id];
-    }
+        // delete deleted markers
+        for (const deletedMarkerId of deletedMarkers) {
+            delete mockMarkers[deletedMarkerId];
+        }
+    },
+
 
 };
 

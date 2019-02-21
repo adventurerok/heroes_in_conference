@@ -150,6 +150,25 @@ function updateItem<T>(c: Cache<T>, id: string, item: T | null): Cache<T> {
     return Container.modified(data, Date.now());
 }
 
+function updateItems<T>(c: Cache<T>, items: IDMap<T | null>): Cache<T> {
+    if(!Container.isReady(c)) {
+        // cache cannot be updated
+        return c;
+    }
+
+    const data = {...c.data};
+    IDMap.iterate(items, (item, id) => {
+        if(item !== null) {
+            data[id] = item;
+        } else {
+            delete data[id];
+        }
+    });
+
+    // modified container, as we have modified data since receiving it from the server
+    return Container.modified(data, Date.now());
+}
+
 function buildCache<T>(items: IDMap<T>): Cache<T> {
     return Container.synced(items, Date.now());
 }
@@ -190,6 +209,7 @@ export const Cache = {
     isLoaded: Container.isReady,
     getItem,
     updateItem,
+    updateItems,
     buildCache,
     filter,
 };

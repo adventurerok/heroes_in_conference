@@ -24,9 +24,7 @@ export interface API {
 
     getMapMarkers: () => Promise<MapMarker[]>,
 
-    deleteMapMarker: (id: string) => Promise<void>,
-
-    updateMapMarker: (marker: MapMarker) => Promise<void>,
+    updateMapMarkers: (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => Promise<void>,
 
 }
 
