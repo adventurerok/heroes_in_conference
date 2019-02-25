@@ -2,6 +2,7 @@ import {Event} from "../events/Event";
 import {MockAPI} from "./MockAPI";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
+import {Achievement} from "../achievements/Achievement";
 
 export interface API {
 
@@ -26,7 +27,9 @@ export interface API {
 
     updateMapMarkers: (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => Promise<void>,
 
-    login: (password: string) => Promise<boolean>;
+    login: (password: string) => Promise<boolean>,
+
+    getAchievements: () => Promise<Achievement[]>,
 
 }
 

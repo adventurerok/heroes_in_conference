@@ -3,6 +3,7 @@ import {Event} from "../events/Event";
 import {IDMap} from "../store/IDMap";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
+import {Achievement} from "../achievements/Achievement";
 
 
 const mockEvents: IDMap<Event> = {
@@ -68,6 +69,20 @@ const mockMarkers: IDMap<MapMarker> = {
     }
 };
 
+
+const mockAchievements: IDMap<Achievement> = {
+    "1": {
+        id: "1",
+        name: "first",
+        count: 7,
+    },
+    "2": {
+        id: "2",
+        name: "second",
+        count: 666,
+    }
+};
+
 // the mock API that we use for manual testing
 export const MockAPI: API = {
 
@@ -130,6 +145,10 @@ export const MockAPI: API = {
         } else {
             return false;
         }
+    },
+
+    getAchievements: async () => {
+        return IDMap.values(mockAchievements);
     }
 
 };

@@ -5,6 +5,7 @@ import {ConferenceMap} from "../maps/ConferenceMap";
 import {Cache, MutableCache} from "./Cache";
 import {MapMarker} from "../maps/MapMarker";
 import {LoginState} from "./LoginState";
+import {Achievement} from "../achievements/Achievement";
 
 export interface AppState {
     events: IDMap<Container<Event>>,
@@ -12,4 +13,5 @@ export interface AppState {
     mapCache: Cache<ConferenceMap>, // let's try this way of doing it instead
     markerCache: MutableCache<MapMarker>,
     loggedIn: LoginState,
+    achievementCache: Cache<Achievement>,
 }
