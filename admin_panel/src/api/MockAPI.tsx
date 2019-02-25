@@ -123,6 +123,14 @@ export const MockAPI: API = {
         }
     },
 
+    login: async (password) => {
+        if(password === "password") {
+            document.cookie = "hello";
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 };
 

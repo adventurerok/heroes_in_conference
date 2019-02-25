@@ -33,7 +33,7 @@ function toDataUrl(url : string): Promise<string> {
             canvas.height = image.naturalHeight;
             canvas.width = image.naturalWidth;
             ctx.drawImage(image, 0, 0);
-            const dataURL = canvas.toDataURL('image/jpg', 0.95);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.95);
             resolve(dataURL);
         };
    });

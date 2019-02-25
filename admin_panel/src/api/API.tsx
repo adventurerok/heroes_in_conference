@@ -26,6 +26,8 @@ export interface API {
 
     updateMapMarkers: (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => Promise<void>,
 
+    login: (password: string) => Promise<boolean>;
+
 }
 
 export const API : API = MockAPI;
