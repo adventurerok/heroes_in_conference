@@ -1,8 +1,8 @@
 import {API} from "./API";
-import {MockAPI} from "./MockAPI";
 import {Event} from "../events/Event";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
+import {Achievement} from "../achievements/Achievement";
 
 
 const apiUrl = "/api";
@@ -76,6 +76,21 @@ function convertServerToClientMarker(input: ServerMarker): MapMarker {
     };
 }
 
+interface ServerAchievement {
+    id: string,
+    name: string,
+    reward: number,
+    count: number,
+}
+
+function convertServerToClientAchievement(input: ServerAchievement): Achievement {
+    return {
+        id: input.id.toString(),
+        name: input.name,
+        count: input.count,
+    }
+}
+
 async function doFetch<T>(url: string, extra?: RequestInit): Promise<APIResponse<T>> {
     const response = await fetch(url, {
         credentials: "include",
@@ -100,7 +115,6 @@ function convertServerTime(input: ServerTime): number {
 }
 
 export const RealAPI: API = {
-    ...MockAPI,
 
     login: async (password: string) => {
         const response = await fetch(`${apiUrl}/admin/authenticate?password=${password}`, {
@@ -250,6 +264,12 @@ export const RealAPI: API = {
         const markers : APIResponse<ServerMarker[]> = await doFetch(`${apiUrl}/markers/${mapId}`);
 
         return markers.payload.map(convertServerToClientMarker);
+    },
+
+    getAchievements: async () => {
+        const response : APIResponse<ServerAchievement[]> = await doFetch(`${apiUrl}/achievements`);
+
+        return response.payload.map(convertServerToClientAchievement);
     }
 
 };
