@@ -136,6 +136,16 @@ export const MockAPI: API = {
         return IDMap.values(mockMarkers);
     },
 
+    createMapMarker: async (mapId, pos) => {
+        return {
+            id: uuidv4(),
+            mapId,
+            name: "New Marker",
+            description: "",
+            pos,
+        }
+    },
+
     updateMapMarkers: async (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => {
         // update modified markers
         for (const marker of modifiedMarkers) {

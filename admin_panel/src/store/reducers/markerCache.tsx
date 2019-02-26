@@ -11,10 +11,13 @@ export function reduceMarkerCache(state: MutableCache<MapMarker> | undefined, ac
         }
         case AppActionTypes.UPDATE_CACHED_MARKERS: {
             // Update Cached Marker shouldn't arrive unless we have the maps from the server
-            return state ? MutableCache.updateItems(state, action.markers) : Container.empty();
+
+            console.log("Update cached markers!");
+            return MutableCache.updateItems(state || Container.synced({}, Date.now()), action.markers);
         }
         default: {
-            return state || Container.empty();
+            // synced because not using mutable cache would create more work
+            return state || Container.synced({}, Date.now());
         }
     }
 }

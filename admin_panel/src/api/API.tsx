@@ -1,6 +1,6 @@
 import {Event} from "../events/Event";
 import {ConferenceMap} from "../maps/ConferenceMap";
-import {MapMarker} from "../maps/MapMarker";
+import {GridPos, MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
 import {RealAPI} from "./RealAPI";
 
@@ -23,7 +23,9 @@ export interface API {
     // new ConferenceMap returned has the new url to the image, if needed
     updateMap: (map: ConferenceMap, image?: Blob) => Promise<ConferenceMap>,
 
-    getMapMarkers: () => Promise<MapMarker[]>,
+    getMapMarkers: (mapId: string) => Promise<MapMarker[]>,
+
+    createMapMarker: (mapId: string, pos: GridPos) => Promise<MapMarker>,
 
     updateMapMarkers: (modifiedMarkers: MapMarker[], deletedMarkers: string[]) => Promise<void>,
 

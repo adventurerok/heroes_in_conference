@@ -2,6 +2,7 @@ import {API} from "./API";
 import {MockAPI} from "./MockAPI";
 import {Event} from "../events/Event";
 import {ConferenceMap} from "../maps/ConferenceMap";
+import {MapMarker} from "../maps/MapMarker";
 
 
 const apiUrl = "/api";
@@ -26,7 +27,7 @@ interface ServerEvent {
 
 function convertServerToClientEvent(input: ServerEvent): Event {
     return {
-        id: input.id,
+        id: input.id.toString(),
         name: input.name,
         description: input.desc,
         startTime: convertServerTime(input.start),
@@ -47,9 +48,31 @@ function convertServerToClientMap(input: ServerMap): ConferenceMap {
     }
 
     return {
-        id: input.id,
+        id: input.id.toString(),
         name: input.name,
         path,
+    };
+}
+
+interface ServerMarker {
+    id: string,
+    map: string,
+    name: string,
+    desc: string,
+    x: number,
+    y: number,
+}
+
+function convertServerToClientMarker(input: ServerMarker): MapMarker {
+    return {
+        id: input.id.toString(),
+        mapId: input.map.toString(),
+        name: input.name,
+        description: input.desc,
+        pos: {
+            x: input.x,
+            y: input.y,
+        },
     };
 }
 
@@ -96,7 +119,7 @@ export const RealAPI: API = {
 
     updateEvent: async (event: Event) => {
         const name = encodeURIComponent(event.name);
-        const desc = encodeURIComponent(event.description) || " "; // we can't send empty description
+        const desc = encodeURIComponent(event.description || " "); // we can't send empty description
         const start = Math.floor(event.startTime / 1000.0);
         const end = Math.floor(event.endTime / 1000.0);
         if (event.id === "new") {
@@ -174,6 +197,46 @@ export const RealAPI: API = {
 
     deleteMap: async (id: string) => {
         await doFetch(`${apiUrl}/admin/maps/remove/${id}`);
+    },
+
+    createMapMarker: async (mapId, pos) => {
+        const name = encodeURIComponent("New Marker");
+        const desc = encodeURIComponent(" ");
+        const x = Math.floor(pos.x);
+        const y = Math.floor(pos.y);
+
+        const response : APIResponse<ServerMarker> = await doFetch(`${apiUrl}/admin/maps/mark/${mapId}/${name}/${desc}/${x}/${y}`);
+
+        return convertServerToClientMarker(response.payload);
+    },
+
+    updateMapMarkers: async (modifiedMarkers, deletedMarkers) => {
+        console.log("Update map markers");
+
+        const updatePromises = modifiedMarkers.map(value => {
+            const name = encodeURIComponent(value.name);
+            const desc = encodeURIComponent(value.description || " ");
+            const x = Math.round(value.pos.x);
+            const y = Math.round(value.pos.y);
+            return doFetch(`${apiUrl}/admin/markers/update/${value.id}/${name}/${desc}/${x}/${y}`);
+        });
+
+        const deletePromises = deletedMarkers.map(value => {
+            return doFetch(`${apiUrl}/admin/markers/remove/${value}`);
+        });
+
+        const combined = [...updatePromises, ...deletePromises];
+        await Promise.all(combined);
+    },
+
+    getMapMarkers: async (mapId: string) => {
+        if(mapId === "new") {
+            return [];
+        }
+
+        const markers : APIResponse<ServerMarker[]> = await doFetch(`${apiUrl}/markers/${mapId}`);
+
+        return markers.payload.map(convertServerToClientMarker);
     }
 
 };

@@ -20,6 +20,7 @@ import {updateMap} from "../store/actions/maps/UpdateMap";
 import {deleteMap} from "../store/actions/maps/DeleteMap";
 import {updateCachedMarkers} from "../store/actions/markers/UpdateCachedMarkers";
 import {saveMarkers} from "../store/actions/markers/SaveMarkers";
+import {createMarker} from "../store/actions/markers/CreateMarker";
 
 const ReactLeaflet = RL as any;
 
@@ -34,9 +35,10 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
     loadMaps: () => void,
-    loadMarkers: () => void,
+    loadMarkers: (mapId: string) => void,
     updateMap: (map: ConferenceMap, imageUrl?: string) => Promise<ConferenceMap>,
     deleteMap: (map: ConferenceMap) => Promise<void>,
+    createMarker: (mapId: string, pos: GridPos) => void,
     updateMarker: (marker: MapMarker) => void,
     deleteMarker: (marker: MapMarker) => void,
     saveMarkers: () => void,
@@ -50,7 +52,8 @@ interface State {
     map?: ConferenceMap,
     statusMessage?: string,
     revokeURL?: string,
-    bounds?: LatLngBoundsLiteral
+    bounds?: LatLngBoundsLiteral,
+    loadedMarkers?: boolean,
 }
 
 class UnconnectedMapPage extends React.Component<Props, State> {
@@ -72,10 +75,6 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 this.props.loadMaps();
         }
 
-        // ensure the markers are loaded
-        if (Container.isEmpty(this.props.markers) || Container.isErrored(this.props.markers)) {
-            this.props.loadMarkers();
-        }
 
         this.onUpdate();
     }
@@ -230,9 +229,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
         const leafletMap: Map = this.mapRef.current.leafletElement;
         const pos = GridPos.fromLatLng(leafletMap.getCenter());
 
-        const newMarker = MapMarker.create(map.id, pos);
-
-        this.props.updateMarker(newMarker);
+        this.props.createMarker(map.id, pos);
     };
 
     private panTo = (marker: MapMarker) => {
@@ -260,6 +257,13 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                     map: this.props.map.item,
                 });
             }
+        }
+
+        if (this.state.map && !this.state.loadedMarkers) {
+            this.props.loadMarkers(this.state.map.id);
+            this.setState({
+                loadedMarkers: true,
+            });
         }
     };
 
@@ -419,17 +423,23 @@ function mapStateToProps(state: AppState, ownProps: ConnectedProps): ReduxStateP
 function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
     return {
         loadMaps: () => dispatch(loadMaps()),
-        loadMarkers: () => dispatch(loadMarkers()),
+        loadMarkers: (mapId) => dispatch(loadMarkers(mapId)),
         updateMap: (map, imageUrl) => updateMap(map, imageUrl, dispatch),
         deleteMap: (map) => deleteMap(map, dispatch),
-        updateMarker: marker => dispatch(updateCachedMarkers(
-            {
-                [marker.id]: Container.modified(marker, Date.now())
-            })),
-        deleteMarker: marker => dispatch(updateCachedMarkers(
-            {
-                [marker.id]: Container.deleted(Date.now())
-            })),
+        createMarker: (mapId, pos) => dispatch(createMarker(mapId, pos)),
+        updateMarker: marker => {
+            dispatch(updateCachedMarkers(
+                {
+                    [marker.id]: Container.modified(marker, Date.now())
+                }));
+        },
+        deleteMarker: marker => {
+            dispatch(updateCachedMarkers(
+                {
+                    [marker.id]: Container.deleted(Date.now())
+                }));
+            dispatch(saveMarkers());
+        },
         saveMarkers: () => dispatch(saveMarkers()),
     }
 }
@@ -451,10 +461,12 @@ class MarkerListItem extends React.Component<MarkerListItemProps, {}> {
             <td className='table-half-expand'><input type='text' className='marker-table-input'
                                                      value={this.props.marker.name} name='name'
                                                      onChange={this.textChanged}
+                                                     onBlur={this.props.saveMarkers}
                                                      autoFocus={this.props.marker.name === "New Marker"}/></td>
             <td className='table-expand'><input type='text' className='marker-table-input'
                                                 value={this.props.marker.description}
                                                 name='description'
+                                                onBlur={this.props.saveMarkers}
                                                 onChange={this.textChanged}/></td>
             <td className='table-shrink'>
                 <button type='button' className='btn btn-info mr-1' onClick={this.panTo}
