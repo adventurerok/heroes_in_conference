@@ -13,7 +13,7 @@ export interface API {
     deleteEvent: (id: string) => Promise<void>,
 
     // update or create an event
-    updateEvent: (event: Event) => Promise<void>,
+    updateEvent: (event: Event) => Promise<Event>,
 
     getMaps: () => Promise<ConferenceMap[]>,
 

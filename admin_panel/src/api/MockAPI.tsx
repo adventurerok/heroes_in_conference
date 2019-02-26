@@ -4,6 +4,7 @@ import {IDMap} from "../store/IDMap";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
+import * as uuidv4 from "uuid/v4";
 
 
 const mockEvents: IDMap<Event> = {
@@ -92,6 +93,15 @@ export const MockAPI: API = {
 
     updateEvent: async (event: Event) => {
         mockEvents[event.id] = event;
+
+        if(event.id === "new") {
+            return {
+                ...event,
+                id: uuidv4(),
+            }
+        }
+
+        return event;
     },
 
     deleteEvent: async (id: string) => {

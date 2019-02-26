@@ -8,10 +8,9 @@ import {AppDispatch} from "../../appStore";
  * Attempts to post event to server, and, if successful, updates the event in the cache.
  */
 export function updateEvent(event: ModifiedContainer<Event>, dispatch: AppDispatch): Promise<void> {
-    dispatch(updateCachedEvent(event));
 
     return API.updateEvent(event.data).then(value => {
         // we are now in sync
-        dispatch(updateCachedEvent(Container.synced(event.data, event.modified)));
+        dispatch(updateCachedEvent(Container.synced(value, event.modified)));
     });
 }

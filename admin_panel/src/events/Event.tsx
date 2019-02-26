@@ -1,5 +1,4 @@
 import {compareAsc, differenceInMilliseconds, isAfter} from 'date-fns';
-import * as uuidv4 from 'uuid/v4';
 
 // working with ms since epoch is easiest
 export type DateTime = number;
@@ -36,10 +35,8 @@ function sortStartTime(a: Event, b: Event): number {
 }
 
 function create(): Event {
-    const id = uuidv4();
-
     return {
-        id,
+        id: "new",
         name: "",
         description: "",
         startTime: Date.now(),
