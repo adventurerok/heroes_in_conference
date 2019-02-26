@@ -39,8 +39,8 @@ public class Achievement {
 
   private Achievement(long id, String name, int reward, int count) {
     assert (name != null && !name.equals(""));
-    assert (reward > 0);
-    assert (count > 0);
+    assert (reward >= 0);
+    assert (count >= 0);
     this.id = id;
     this.name = name;
     this.reward = reward;
@@ -114,9 +114,9 @@ public class Achievement {
   }
 
   /**
-   * Construct an achievement from a {@link java.sql#ResultSet}.
+   * Construct an achievement from a {@link java.sql.ResultSet}.
    *
-   * @param rs the {@link java.sql#ResultSet} to construct from
+   * @param rs the {@link java.sql.ResultSet} to construct from
    * @return the constructed achievement
    * @throws DatabaseException if the achievement could not be constructed
    */
