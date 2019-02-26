@@ -401,7 +401,7 @@ public class Server {
                                                                         request.params("name").trim(), acceptUploadedImage(request)));
                                                     },
                                                     gson::toJson);
-                                            get(
+                                            post(
                                                     "/setimage/:map",
                                                     (request, response) -> {
                                                         authenticateAdmin(request);

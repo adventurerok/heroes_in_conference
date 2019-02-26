@@ -152,9 +152,6 @@ export const RealAPI: API = {
                     renamePromise,
                     doFetch(`${apiUrl}/admin/maps/setimage/${map.id}`, {
                         method: 'POST',
-                        headers: {
-                            "Content-Type": "multipart/form-data"
-                        },
                         body: formData,
                     }) as Promise<APIResponse<ServerMap>>
                 ]);
