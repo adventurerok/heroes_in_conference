@@ -191,6 +191,10 @@ export const MockAPI: API = {
 
     getGroups: async () => {
         return IDMap.values(mockGroups);
+    },
+
+    toggleGroup: async (groupId, enabled) => {
+        mockGroups[groupId].enabled = enabled;
     }
 
 };

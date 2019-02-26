@@ -371,7 +371,7 @@ public class Server {
                                         "/groups/:group",
                                         () -> {
                                             get(
-                                                    "enable",
+                                                    "/enable",
                                                     (request, response) -> {
                                                         authenticateAdmin(request);
                                                         long id = Long.parseLong(request.params(":group"));
@@ -380,7 +380,7 @@ public class Server {
                                                     },
                                                     gson::toJson);
                                             get(
-                                                    "disable",
+                                                    "/disable",
                                                     (request, response) -> {
                                                         authenticateAdmin(request);
                                                         long id = Long.parseLong(request.params(":group"));

@@ -3,7 +3,7 @@ import {Event} from "../events/Event";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
-import {MockAPI} from "./MockAPI";
+import {ContentGroup} from "../groups/ContentGroup";
 
 
 const apiUrl = "/api";
@@ -44,7 +44,7 @@ interface ServerMap {
 
 function convertServerToClientMap(input: ServerMap): ConferenceMap {
     let path = input.image;
-    if(!path.startsWith("/")) {
+    if (!path.startsWith("/")) {
         path = `/${path}`;
     }
 
@@ -92,6 +92,20 @@ function convertServerToClientAchievement(input: ServerAchievement): Achievement
     }
 }
 
+interface ServerGroup {
+    id: string,
+    enabled: boolean,
+    name: string,
+}
+
+function convertServerToClientGroup(input: ServerGroup): ContentGroup {
+    return {
+        id: input.id.toString(),
+        name: input.name,
+        enabled: input.enabled,
+    }
+}
+
 async function doFetch<T>(url: string, extra?: RequestInit): Promise<APIResponse<T>> {
     const response = await fetch(url, {
         credentials: "include",
@@ -116,7 +130,6 @@ function convertServerTime(input: ServerTime): number {
 }
 
 export const RealAPI: API = {
-    ...MockAPI,
 
     login: async (password: string) => {
         const response = await fetch(`${apiUrl}/admin/authenticate?password=${password}`, {
@@ -138,7 +151,7 @@ export const RealAPI: API = {
             credentials: "include",
         });
 
-        if(!response.ok) {
+        if (!response.ok) {
             return false;
         }
 
@@ -167,7 +180,7 @@ export const RealAPI: API = {
     },
 
     getEvents: async () => {
-        const response : APIResponse<ServerEvent[]> = await doFetch(`${apiUrl}/events`);
+        const response: APIResponse<ServerEvent[]> = await doFetch(`${apiUrl}/events`);
 
         return response.payload.map(convertServerToClientEvent);
     },
@@ -180,16 +193,16 @@ export const RealAPI: API = {
         const name = encodeURIComponent(map.name);
 
         let formData;
-        if(image) {
+        if (image) {
             formData = new FormData();
             formData.append('image', image, 'imgfile.jpg');
         }
 
-        if(map.id === "new") {
-            if(!image) {
+        if (map.id === "new") {
+            if (!image) {
                 throw new Error("Expecting image for new map");
             }
-            const response : APIResponse<ServerMap> = await doFetch(`${apiUrl}/admin/maps/create/${name}`, {
+            const response: APIResponse<ServerMap> = await doFetch(`${apiUrl}/admin/maps/create/${name}`, {
                 method: 'POST',
                 body: formData,
             });
@@ -198,7 +211,7 @@ export const RealAPI: API = {
         } else {
             const renamePromise: Promise<APIResponse<void>> = doFetch(`${apiUrl}/admin/maps/rename/${map.id}/${name}`);
 
-            if(image) {
+            if (image) {
                 // do both requests at once
                 const maps = await Promise.all([
                     renamePromise,
@@ -219,7 +232,7 @@ export const RealAPI: API = {
     },
 
     getMaps: async () => {
-        const response : APIResponse<ServerMap[]> = await doFetch(`${apiUrl}/maps`);
+        const response: APIResponse<ServerMap[]> = await doFetch(`${apiUrl}/maps`);
 
         return response.payload.map(convertServerToClientMap);
     },
@@ -234,7 +247,7 @@ export const RealAPI: API = {
         const x = Math.floor(pos.x);
         const y = Math.floor(pos.y);
 
-        const response : APIResponse<ServerMarker> = await doFetch(`${apiUrl}/admin/maps/mark/${mapId}/${name}/${desc}/${x}/${y}`);
+        const response: APIResponse<ServerMarker> = await doFetch(`${apiUrl}/admin/maps/mark/${mapId}/${name}/${desc}/${x}/${y}`);
 
         return convertServerToClientMarker(response.payload);
     },
@@ -259,19 +272,31 @@ export const RealAPI: API = {
     },
 
     getMapMarkers: async (mapId: string) => {
-        if(mapId === "new") {
+        if (mapId === "new") {
             return [];
         }
 
-        const markers : APIResponse<ServerMarker[]> = await doFetch(`${apiUrl}/markers/${mapId}`);
+        const markers: APIResponse<ServerMarker[]> = await doFetch(`${apiUrl}/markers/${mapId}`);
 
         return markers.payload.map(convertServerToClientMarker);
     },
 
     getAchievements: async () => {
-        const response : APIResponse<ServerAchievement[]> = await doFetch(`${apiUrl}/achievements`);
+        const response: APIResponse<ServerAchievement[]> = await doFetch(`${apiUrl}/achievements`);
 
         return response.payload.map(convertServerToClientAchievement);
+    },
+
+    getGroups: async () => {
+        const response: APIResponse<ServerGroup[]> = await doFetch(`${apiUrl}/groups`);
+
+        return response.payload.map(convertServerToClientGroup);
+    },
+
+    toggleGroup: async (groupId: string, enabled: boolean) => {
+        const enableOrDisable = enabled ? "enable" : "disable";
+
+        await doFetch(`${apiUrl}/admin/groups/${groupId}/${enableOrDisable}`);
     }
 
 };

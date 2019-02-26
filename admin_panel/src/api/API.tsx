@@ -38,6 +38,8 @@ export interface API {
 
     getGroups: () => Promise<ContentGroup[]>,
 
+    toggleGroup: (groupId: string, enabled: boolean) => Promise<void>,
+
 }
 
 export const API : API = RealAPI;

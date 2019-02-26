@@ -14,6 +14,7 @@ import {AppState} from "./store/AppState";
 import {AchievementListPage} from "./achievements/AchievementListPage";
 import {AppDispatch} from "./store/appStore";
 import {checkLoginState} from "./store/actions/login/CheckLoginState";
+import {GroupListPage} from "./groups/GroupListPage";
 
 interface ReduxStateProps {
     loginState: LoginState,
@@ -60,6 +61,10 @@ class UnconnectedApp extends React.Component<Props, {}> {
                             <NavLink to="/achievements" className="nav-link"
                                      activeClassName="active">Achievements</NavLink>
                         </li>
+                        <li className="nav-item">
+                            <NavLink to="/groups" className="nav-link"
+                                     activeClassName="active">Groups</NavLink>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -83,6 +88,7 @@ class UnconnectedApp extends React.Component<Props, {}> {
                     <Route path="/events" component={EventListPage}/>
                     <Route path="/event/:id" component={EventPage}/>
                     <Route path="/achievements" component={AchievementListPage}/>
+                    <Route path="/groups" component={GroupListPage} />
                 </>;
             }
         }
