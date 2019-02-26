@@ -21,7 +21,7 @@ export interface API {
 
     // base64 string of image data, you can probably infer image type from this
     // new ConferenceMap returned has the new url to the image, if needed
-    updateMap: (map: ConferenceMap, image?: string) => Promise<ConferenceMap>,
+    updateMap: (map: ConferenceMap, image?: Blob) => Promise<ConferenceMap>,
 
     getMapMarkers: () => Promise<MapMarker[]>,
 

@@ -116,7 +116,7 @@ export const MockAPI: API = {
         return IDMap.values(mockMaps);
     },
 
-    updateMap: async (map: ConferenceMap, image: string) => {
+    updateMap: async (map: ConferenceMap) => {
         mockMaps[map.id] = map;
 
         // TODO mock image updating

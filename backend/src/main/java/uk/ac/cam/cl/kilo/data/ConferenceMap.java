@@ -60,7 +60,7 @@ public class ConferenceMap {
       stmt.executeUpdate();
       ResultSet rs = stmt.getGeneratedKeys();
       if (!rs.first()) throw new DatabaseException("Failed to generate ID for map");
-      id = rs.getLong(ID_FIELD);
+      id = rs.getLong(1);
     } catch (SQLException e) {
       throw new DatabaseException(e);
     }

@@ -1,5 +1,3 @@
-import * as uuidv4 from 'uuid/v4';
-
 export interface ConferenceMap {
     id: string,
     name: string,
@@ -24,10 +22,8 @@ function validationMessage(map: ConferenceMap): string | null {
 }
 
 function create(): ConferenceMap {
-    const id = uuidv4();
-
     return {
-        id,
+        id: "new",
         name: "",
         path: ""
     };

@@ -17,10 +17,18 @@ export async function updateMap(map: ConferenceMap, image: string | undefined, d
     return result;
 }
 
-function toDataUrl(url : string): Promise<string> {
+function toDataUrl(url : string): Promise<Blob> {
    const image = new Image();
 
-   const promise = new Promise<string>((resolve, reject) => {
+   const promise = new Promise<Blob>((resolve, reject) => {
+        const blobCallback : BlobCallback = blob => {
+            if(blob === null) {
+                reject("Failed to convert image to jpeg blob");
+            } else {
+                resolve(blob);
+            }
+        };
+
         image.onload = () => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -33,8 +41,7 @@ function toDataUrl(url : string): Promise<string> {
             canvas.height = image.naturalHeight;
             canvas.width = image.naturalWidth;
             ctx.drawImage(image, 0, 0);
-            const dataURL = canvas.toDataURL('image/jpeg', 0.95);
-            resolve(dataURL);
+            canvas.toBlob(blobCallback, 'image/jpeg', 0.95);
         };
    });
 

@@ -1,6 +1,7 @@
 import {API} from "./API";
 import {MockAPI} from "./MockAPI";
 import {Event} from "../events/Event";
+import {ConferenceMap} from "../maps/ConferenceMap";
 
 
 const apiUrl = "/api";
@@ -33,9 +34,29 @@ function convertServerToClientEvent(input: ServerEvent): Event {
     }
 }
 
-async function doFetch<T>(url: string): Promise<APIResponse<T>> {
+interface ServerMap {
+    id: string,
+    name: string,
+    image: string,
+}
+
+function convertServerToClientMap(input: ServerMap): ConferenceMap {
+    let path = input.image;
+    if(!path.startsWith("/")) {
+        path = `/${path}`;
+    }
+
+    return {
+        id: input.id,
+        name: input.name,
+        path,
+    };
+}
+
+async function doFetch<T>(url: string, extra?: RequestInit): Promise<APIResponse<T>> {
     const response = await fetch(url, {
         credentials: "include",
+        ...extra,
     });
     if (!response.ok) {
         throw new Error(response.statusText);
@@ -75,7 +96,7 @@ export const RealAPI: API = {
 
     updateEvent: async (event: Event) => {
         const name = encodeURIComponent(event.name);
-        const desc = encodeURIComponent(event.description);
+        const desc = encodeURIComponent(event.description) || " "; // we can't send empty description
         const start = Math.floor(event.startTime / 1000.0);
         const end = Math.floor(event.endTime / 1000.0);
         if (event.id === "new") {
@@ -101,6 +122,61 @@ export const RealAPI: API = {
 
     deleteEvent: async (id: string) => {
         await doFetch(`${apiUrl}/admin/events/remove/${id}`);
+    },
+
+    updateMap: async (map: ConferenceMap, image?: Blob) => {
+        const name = encodeURIComponent(map.name);
+
+        let formData;
+        if(image) {
+            formData = new FormData();
+            formData.append('image', image, 'imgfile.jpg');
+        }
+
+        if(map.id === "new") {
+            if(!image) {
+                throw new Error("Expecting image for new map");
+            }
+            const response : APIResponse<ServerMap> = await doFetch(`${apiUrl}/admin/maps/create/${name}`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            return convertServerToClientMap(response.payload);
+        } else {
+            const renamePromise: Promise<APIResponse<void>> = doFetch(`${apiUrl}/admin/maps/rename/${map.id}/${name}`);
+
+            if(image) {
+                // do both requests at once
+                const maps = await Promise.all([
+                    renamePromise,
+                    doFetch(`${apiUrl}/admin/maps/setimage/${map.id}`, {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "multipart/form-data"
+                        },
+                        body: formData,
+                    }) as Promise<APIResponse<ServerMap>>
+                ]);
+
+                return convertServerToClientMap(maps[1].payload);
+            } else {
+                await renamePromise;
+                return map;
+            }
+
+
+        }
+    },
+
+    getMaps: async () => {
+        const response : APIResponse<ServerMap[]> = await doFetch(`${apiUrl}/maps`);
+
+        return response.payload.map(convertServerToClientMap);
+    },
+
+    deleteMap: async (id: string) => {
+        await doFetch(`${apiUrl}/admin/maps/remove/${id}`);
     }
 
 };
