@@ -1,8 +1,8 @@
 import {Event} from "../events/Event";
-import {MockAPI} from "./MockAPI";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
+import {RealAPI} from "./RealAPI";
 
 export interface API {
 
@@ -33,4 +33,4 @@ export interface API {
 
 }
 
-export const API : API = MockAPI;
+export const API : API = RealAPI;
