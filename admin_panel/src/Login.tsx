@@ -6,7 +6,7 @@ import {LoginState} from "./store/LoginState";
 import {connect} from "react-redux";
 import {AppState} from "./store/AppState";
 import {AppDispatch} from "./store/appStore";
-import {setLoginState} from "./store/actions/SetLoginState";
+import {setLoginState} from "./store/actions/login/SetLoginState";
 
 
 

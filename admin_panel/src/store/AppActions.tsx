@@ -8,7 +8,7 @@ import {UpdateCachedMapAction} from "./actions/maps/UpdateCachedMap";
 import {UpdateMapCacheAction} from "./actions/maps/UpdateMapCache";
 import {UpdateMarkerCacheAction} from "./actions/markers/UpdateMarkerCache";
 import {UpdateCachedMarkersAction} from "./actions/markers/UpdateCachedMarkers";
-import {SetLoginStateAction} from "./actions/SetLoginState";
+import {SetLoginStateAction} from "./actions/login/SetLoginState";
 import {UpdateAchievementCacheAction} from "./actions/achievements/UpdateAchievementCache";
 
 // these are the values the type field of the action can take

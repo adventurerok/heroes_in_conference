@@ -12,17 +12,30 @@ import {LoginState} from "./store/LoginState";
 import {connect} from "react-redux";
 import {AppState} from "./store/AppState";
 import {AchievementListPage} from "./achievements/AchievementListPage";
+import {AppDispatch} from "./store/appStore";
+import {checkLoginState} from "./store/actions/login/CheckLoginState";
 
 interface ReduxStateProps {
     loginState: LoginState,
 }
 
-type Props = ReduxStateProps & RouteComponentProps<{}>;
+interface ReduxDispatchProps {
+    checkLoginState: () => void,
+}
+
+type Props = ReduxStateProps & ReduxDispatchProps & RouteComponentProps<{}>;
 
 class UnconnectedApp extends React.Component<Props, {}> {
-    public render() {
-        const loggedIn = this.props.loginState === LoginState.LOGGED_IN;
 
+    public componentDidMount(): void {
+        this.onUpdate();
+    }
+
+    public componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+        this.onUpdate();
+    }
+
+    public render() {
         return <>
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
                 <a className="navbar-brand" href="#">Navbar</a>
@@ -44,26 +57,41 @@ class UnconnectedApp extends React.Component<Props, {}> {
                             <NavLink to="/events" className="nav-link" activeClassName="active">Events</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/achievements" className="nav-link" activeClassName="active">Achievements</NavLink>
+                            <NavLink to="/achievements" className="nav-link"
+                                     activeClassName="active">Achievements</NavLink>
                         </li>
                     </ul>
                 </div>
             </nav>
-            {loggedIn &&
             <div className="container">
-                <Route path="/maps" component={MapListPage}/>
-                <Route path="/map/:id" component={MapPage}/>
-                <Route path="/events" component={EventListPage}/>
-                <Route path="/event/:id" component={EventPage}/>
-                <Route path="/achievements" component={AchievementListPage}/>
+                {this.renderContainer()}
             </div>
-            }
-            {!loggedIn &&
-            <div className="container">
-                <Login/>
-            </div>
-            }
         </>;
+    }
+
+    private renderContainer = () => {
+        switch (this.props.loginState) {
+            case LoginState.NOT_LOGGED_IN:
+            case LoginState.UNCHECKED_COOKIE:
+                return <Login />;
+            case LoginState.CHECKING_COOKIE:
+                return <div>Checking login cookie!</div>;
+            case LoginState.LOGGED_IN: {
+                return <>
+                    <Route path="/maps" component={MapListPage}/>
+                    <Route path="/map/:id" component={MapPage}/>
+                    <Route path="/events" component={EventListPage}/>
+                    <Route path="/event/:id" component={EventPage}/>
+                    <Route path="/achievements" component={AchievementListPage}/>
+                </>;
+            }
+        }
+    };
+
+    private onUpdate = () => {
+        if(this.props.loginState === LoginState.UNCHECKED_COOKIE) {
+            this.props.checkLoginState();
+        }
     }
 }
 
@@ -73,4 +101,10 @@ function mapStateToProps(state: AppState): ReduxStateProps {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(UnconnectedApp));
+function mapDispatchToProps(dispatch: AppDispatch): ReduxDispatchProps {
+    return {
+        checkLoginState: () => dispatch(checkLoginState())
+    }
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UnconnectedApp));

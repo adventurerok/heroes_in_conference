@@ -167,6 +167,10 @@ export const MockAPI: API = {
         }
     },
 
+    checkLoggedIn: async () => {
+        return true;
+    },
+
     getAchievements: async () => {
         return IDMap.values(mockAchievements);
     }

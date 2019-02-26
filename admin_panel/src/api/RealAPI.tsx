@@ -117,6 +117,19 @@ export const RealAPI: API = {
         return data.status === "ok";
     },
 
+    checkLoggedIn: async () => {
+        const response = await fetch(`${apiUrl}/admin/authenticate`, {
+            credentials: "include",
+        });
+
+        if(!response.ok) {
+            return false;
+        }
+
+        const data = (await response.json()) as APIResponse<{}>;
+        return data.status === "ok";
+    },
+
     updateEvent: async (event: Event) => {
         const name = encodeURIComponent(event.name);
         const desc = encodeURIComponent(event.description || " "); // we can't send empty description

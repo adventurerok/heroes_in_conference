@@ -31,6 +31,8 @@ export interface API {
 
     login: (password: string) => Promise<boolean>,
 
+    checkLoggedIn: () => Promise<boolean>,
+
     getAchievements: () => Promise<Achievement[]>,
 
 }
