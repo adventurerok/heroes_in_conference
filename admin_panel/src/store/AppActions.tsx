@@ -10,6 +10,8 @@ import {UpdateMarkerCacheAction} from "./actions/markers/UpdateMarkerCache";
 import {UpdateCachedMarkersAction} from "./actions/markers/UpdateCachedMarkers";
 import {SetLoginStateAction} from "./actions/login/SetLoginState";
 import {UpdateAchievementCacheAction} from "./actions/achievements/UpdateAchievementCache";
+import {UpdateCachedGroupAction} from "./actions/groups/UpdateCachedGroup";
+import {UpdateGroupCacheAction} from "./actions/groups/UpdateGroupCache";
 
 // these are the values the type field of the action can take
 export enum AppActionTypes {
@@ -27,6 +29,9 @@ export enum AppActionTypes {
     UPDATE_ACHIEVEMENT_CACHE = "UPDATE_ACHIEVEMENT_CACHE",
 
     SET_LOGIN_STATE = "SET_LOGIN_STATE",
+
+    UPDATE_GROUP_CACHE = "UPDATE_GROUP_CACHE",
+    UPDATE_CACHED_GROUP = "UPDATE_CACHED_GROUP",
 }
 
 
@@ -50,9 +55,20 @@ type MarkerAction =
 
 type AchievementAction =
     UpdateAchievementCacheAction
-;
+    ;
 
-export type AppObjectAction = EventAction | MapAction | MarkerAction | AchievementAction | SetLoginStateAction;
+type GroupAction =
+    UpdateCachedGroupAction
+    | UpdateGroupCacheAction
+    ;
+
+export type AppObjectAction =
+    EventAction
+    | MapAction
+    | MarkerAction
+    | AchievementAction
+    | GroupAction
+    | SetLoginStateAction;
 
 // type of our redux-thunk actions. Type params = thunk return type, state type, enhancer, 'object' action type
 export type AppThunkAction = ThunkAction<any, AppState, any, AppObjectAction>;

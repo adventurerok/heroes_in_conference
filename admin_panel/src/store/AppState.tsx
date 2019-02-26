@@ -6,6 +6,7 @@ import {Cache, MutableCache} from "./Cache";
 import {MapMarker} from "../maps/MapMarker";
 import {LoginState} from "./LoginState";
 import {Achievement} from "../achievements/Achievement";
+import {ContentGroup} from "../groups/ContentGroup";
 
 export interface AppState {
     events: IDMap<Container<Event>>,
@@ -14,4 +15,5 @@ export interface AppState {
     markerCache: MutableCache<MapMarker>,
     loggedIn: LoginState,
     achievementCache: Cache<Achievement>,
+    groupCache: Cache<ContentGroup>,
 }

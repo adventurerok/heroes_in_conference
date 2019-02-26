@@ -3,6 +3,7 @@ import {Event} from "../events/Event";
 import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
+import {MockAPI} from "./MockAPI";
 
 
 const apiUrl = "/api";
@@ -115,6 +116,7 @@ function convertServerTime(input: ServerTime): number {
 }
 
 export const RealAPI: API = {
+    ...MockAPI,
 
     login: async (password: string) => {
         const response = await fetch(`${apiUrl}/admin/authenticate?password=${password}`, {

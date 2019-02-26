@@ -3,6 +3,7 @@ import {ConferenceMap} from "../maps/ConferenceMap";
 import {GridPos, MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
 import {RealAPI} from "./RealAPI";
+import {ContentGroup} from "../groups/ContentGroup";
 
 export interface API {
 
@@ -34,6 +35,8 @@ export interface API {
     checkLoggedIn: () => Promise<boolean>,
 
     getAchievements: () => Promise<Achievement[]>,
+
+    getGroups: () => Promise<ContentGroup[]>,
 
 }
 

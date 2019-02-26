@@ -5,6 +5,7 @@ import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
 import * as uuidv4 from "uuid/v4";
+import {ContentGroup} from "../groups/ContentGroup";
 
 
 const mockEvents: IDMap<Event> = {
@@ -83,6 +84,19 @@ const mockAchievements: IDMap<Achievement> = {
         count: 666,
     }
 };
+
+const mockGroups: IDMap<ContentGroup> = {
+    "1": {
+        id: "1",
+        name: "Cows",
+        enabled: true,
+    },
+    "2": {
+        id: "2",
+        name: "Dragons",
+        enabled: false,
+    }
+}
 
 // the mock API that we use for manual testing
 export const MockAPI: API = {
@@ -173,6 +187,10 @@ export const MockAPI: API = {
 
     getAchievements: async () => {
         return IDMap.values(mockAchievements);
+    },
+
+    getGroups: async () => {
+        return IDMap.values(mockGroups);
     }
 
 };
