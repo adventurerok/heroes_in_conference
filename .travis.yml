@@ -1,3 +1,9 @@
+before_install:
+- openssl aes-256-cbc -K $encrypted_b74b8473edf8_key -iv $encrypted_b74b8473edf8_iv -in credentials.tar.gz.enc -out credentials.tar.gz -d
+- tar -xzf credentials.tar.gz
+- gcloud auth activate-service-account --key-file client-secret.json
+install:
+- gcloud config set project heroes-in-conference
 matrix:
   include:
   - language: java
