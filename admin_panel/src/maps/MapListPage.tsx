@@ -37,13 +37,12 @@ class UnconnectedMapListPage extends React.Component<Props, {}> {
 
         return <>
             <h1>Maps</h1>
-            <button type="button" className="btn btn-primary" onClick={this.newMap}>New Map</button>
+            <button type="button" className="btn btn-primary mb-1" onClick={this.newMap}>New Map</button>
             <br/>
             <table className="table">
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Path</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -81,7 +80,6 @@ class MapListItem extends React.Component<MapListItemProps, {}> {
     public render(): React.ReactNode {
         return <tr>
             <td><Link to={"/map/" + this.props.map.id}>{this.props.map.name}</Link></td>
-            <td>{this.props.map.path}</td>
         </tr>;
     }
 }

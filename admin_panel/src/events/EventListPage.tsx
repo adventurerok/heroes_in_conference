@@ -49,7 +49,7 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
 
         return <>
             <h1>Events</h1>
-            <button type="button" className="btn btn-primary" onClick={this.newEvent}>New Event</button>
+            <button type="button" className="btn btn-primary mb-1" onClick={this.newEvent}>New Event</button>
             <br/>
             <table className="table">
                 <thead>
