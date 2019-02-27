@@ -8,6 +8,7 @@ import {reduceMarkerCache} from "./reducers/markerCache";
 import {reduceLoggedIn} from "./reducers/loggedIn";
 import {reduceAchievementCache} from "./reducers/achievementCache";
 import {reduceGroupCache} from "./reducers/groupCache";
+import {reduceUsageStats} from "./reducers/usageStats";
 
 
 export const appReducer = combineReducers<AppState, AppObjectAction>({
@@ -18,4 +19,5 @@ export const appReducer = combineReducers<AppState, AppObjectAction>({
     loggedIn: reduceLoggedIn,
     achievementCache: reduceAchievementCache,
     groupCache: reduceGroupCache,
+    usageStats: reduceUsageStats,
 });
