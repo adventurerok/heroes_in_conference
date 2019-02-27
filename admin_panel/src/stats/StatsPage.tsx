@@ -92,11 +92,12 @@ class UnconnectedStatsPage extends React.Component<Props, {}> {
                   label: "API Requests Per Minute",
                   backgroundColor: 'rgba(75,192,192,0.4)',
                   borderColor: 'rgba(75,192,192,1)',
+                  pointRadius: 0,
                   data: statsDataSet,
               } as ChartDataSets]
         };
 
-        return <Line data={data} width={100} height={50} options={{
+        return <Line data={data} width={100} height={150} options={{
             maintainAspectRatio: false,
             scales: {
                 xAxes: [{
