@@ -43,6 +43,8 @@ export interface API {
 
     getUsageStats: () => Promise<UsageStat[]>,
 
+    getUserCount: () => Promise<number>
+
 }
 
 export const API : API = RealAPI;

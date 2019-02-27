@@ -2,7 +2,7 @@
   "name": "admin_panel",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:4567/",
+  "proxy": "https://nc513.user.srcf.net/",
   "dependencies": {
     "bootstrap": "^4.2.1",
     "chart.js": "^2.7.3",

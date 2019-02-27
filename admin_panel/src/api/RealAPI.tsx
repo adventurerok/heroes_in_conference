@@ -316,6 +316,12 @@ export const RealAPI: API = {
         const response : APIResponse<ServerStat[]> = await doFetch(`${apiUrl}/admin/usage`);
 
         return response.payload.map(convertServerToClientStat);
+    },
+
+    getUserCount: async () => {
+        const response : APIResponse<number> = await doFetch(`${apiUrl}/admin/users`);
+
+        return response.payload;
     }
 
 };

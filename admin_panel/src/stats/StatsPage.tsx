@@ -7,6 +7,7 @@ import {loadUsageStats} from "../store/actions/stats/LoadUsageStats";
 import {connect} from "react-redux";
 import {Line} from "react-chartjs-2";
 import {ChartDataSets, ChartPoint} from "chart.js";
+import {API} from "../api/API";
 
 
 interface ReduxStateProps {
@@ -19,17 +20,28 @@ interface ReduxDispatchProps {
 
 type Props = ReduxStateProps & ReduxDispatchProps;
 
-class UnconnectedStatsPage extends React.Component<Props, {}> {
+interface State {
+    userCount?: number,
+}
+
+class UnconnectedStatsPage extends React.Component<Props, State> {
     private usageInterval: number;
 
     constructor(props: Readonly<Props>) {
         super(props);
+
+        this.state = {};
     }
 
     public componentDidMount(): void {
         this.props.loadUsageStats();
 
         this.usageInterval = window.setInterval(this.props.loadUsageStats, 30000);
+
+        // load user count quickly
+        API.getUserCount().then(value => this.setState({
+                userCount: value,
+        }));
     }
 
     public componentWillUnmount(): void {
@@ -61,6 +73,7 @@ class UnconnectedStatsPage extends React.Component<Props, {}> {
 
         return <>
             <h1>Statistics</h1>
+            <div>Total user count: {this.state.userCount !== undefined ? this.state.userCount : "Loading..."}</div>
             {statsElement}
         </>;
     }

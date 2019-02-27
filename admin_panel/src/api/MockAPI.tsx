@@ -206,6 +206,10 @@ export const MockAPI: API = {
 
     getUsageStats: async () => {
         return mockStats;
+    },
+
+    getUserCount: async () => {
+        return 37;
     }
 
 };
