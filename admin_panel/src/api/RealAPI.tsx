@@ -4,7 +4,7 @@ import {ConferenceMap} from "../maps/ConferenceMap";
 import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
 import {ContentGroup} from "../groups/ContentGroup";
-import {MockAPI} from "./MockAPI";
+import {UsageStat} from "../stats/UsageStat";
 
 
 const apiUrl = "/api";
@@ -107,6 +107,18 @@ function convertServerToClientGroup(input: ServerGroup): ContentGroup {
     }
 }
 
+interface ServerStat {
+    time: ServerTime,
+    requestCount: number,
+}
+
+function convertServerToClientStat(input: ServerStat): UsageStat {
+    return {
+        time: convertServerTime(input.time),
+        requestCount: input.requestCount,
+    }
+}
+
 async function doFetch<T>(url: string, extra?: RequestInit): Promise<APIResponse<T>> {
     const response = await fetch(url, {
         credentials: "include",
@@ -131,7 +143,6 @@ function convertServerTime(input: ServerTime): number {
 }
 
 export const RealAPI: API = {
-    ...MockAPI,
 
     login: async (password: string) => {
         const response = await fetch(`${apiUrl}/admin/authenticate?password=${password}`, {
@@ -299,6 +310,12 @@ export const RealAPI: API = {
         const enableOrDisable = enabled ? "enable" : "disable";
 
         await doFetch(`${apiUrl}/admin/groups/${groupId}/${enableOrDisable}`);
+    },
+
+    getUsageStats: async () => {
+        const response : APIResponse<ServerStat[]> = await doFetch(`${apiUrl}/admin/usage`);
+
+        return response.payload.map(convertServerToClientStat);
     }
 
 };
