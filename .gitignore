@@ -160,3 +160,7 @@ Assets/TextMesh Pro
 
 # Vuforia Config files
 VuforiaConfiguration*
+
+api.key
+client-secret.json
+credentials.tar.gz
