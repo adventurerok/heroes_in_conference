@@ -15,6 +15,7 @@ import {AchievementListPage} from "./achievements/AchievementListPage";
 import {AppDispatch} from "./store/appStore";
 import {checkLoginState} from "./store/actions/login/CheckLoginState";
 import {GroupListPage} from "./groups/GroupListPage";
+import {StatsPage} from "./stats/StatsPage";
 
 interface ReduxStateProps {
     loginState: LoginState,
@@ -83,6 +84,7 @@ class UnconnectedApp extends React.Component<Props, {}> {
                 return <div>Checking login cookie!</div>;
             case LoginState.LOGGED_IN: {
                 return <>
+                    <Route path="/" exact={true} component={StatsPage} />
                     <Route path="/maps" component={MapListPage}/>
                     <Route path="/map/:id" component={MapPage}/>
                     <Route path="/events" component={EventListPage}/>

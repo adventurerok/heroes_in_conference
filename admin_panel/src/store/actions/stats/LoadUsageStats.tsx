@@ -5,9 +5,12 @@ import {API} from "../../../api/API";
 
 
 export function loadUsageStats(): AppThunkAction {
-    return (dispatch) => {
+    return (dispatch, getState) => {
 
-        dispatch(updateUsageStats(Container.loading(Date.now())));
+        if(!Container.isReady(getState().usageStats)) {
+            // don't say we are loading if we already have them loaded
+            dispatch(updateUsageStats(Container.loading(Date.now())));
+        }
 
         API.getUsageStats()
             .then(value => {
