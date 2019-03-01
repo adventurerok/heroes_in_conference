@@ -40,7 +40,7 @@ class UnconnectedStatsPage extends React.Component<Props, State> {
 
         // load user count quickly
         API.getUserCount().then(value => this.setState({
-                userCount: value,
+            userCount: value,
         }));
     }
 
@@ -67,7 +67,16 @@ class UnconnectedStatsPage extends React.Component<Props, State> {
                 break;
             }
             case ContainerState.SYNCED: {
-                statsElement = this.renderStatsGraph(this.props.usageStats.data);
+                statsElement = <>
+                    <div>
+                        <h3>Last 12 Hours</h3>
+                        {this.renderStatsGraph(this.props.usageStats.data.filter(last12Hours))}
+                    </div>
+                    <div>
+                        <h3>12 - 24 Hours Ago </h3>
+                        {this.renderStatsGraph(this.props.usageStats.data.filter(previous12Hours))}
+                    </div>
+                </>;
             }
         }
 
@@ -81,11 +90,14 @@ class UnconnectedStatsPage extends React.Component<Props, State> {
     private renderStatsGraph = (stats: UsageStat[]) => {
         const sortedStats = stats.sort(UsageStat.sort);
         const statsDataSet: ChartPoint[] = [];
+        const movingDataSet: ChartPoint[] = [];
         let lastTime;
+
+        let last5: number[] = [];
 
         for (const stat of sortedStats) {
             let rpm = stat.requestCount;
-            if(lastTime) {
+            if (lastTime) {
                 // average over the time passed since last time
                 const minutesPassed = (stat.time - lastTime) / 60000;
                 rpm = rpm / minutesPassed;
@@ -94,24 +106,44 @@ class UnconnectedStatsPage extends React.Component<Props, State> {
             rpm = Math.floor(rpm * 10) / 10;
             lastTime = stat.time;
 
+            last5.push(rpm);
+            if (last5.length > 5) {
+                last5 = last5.slice(1);
+            }
+
             statsDataSet.push({
                 x: stat.time,
                 y: rpm,
             });
+
+            movingDataSet.push({
+                x: stat.time,
+                y: (last5.reduce((a, b) => a + b) / last5.length),
+            });
         }
 
         const data = {
-              datasets: [{
-                  label: "API Requests Per Minute",
-                  backgroundColor: 'rgba(75,192,192,0.4)',
-                  borderColor: 'rgba(75,192,192,1)',
-                  pointRadius: 0,
-                  data: statsDataSet,
-              } as ChartDataSets]
+            datasets: [
+                {
+                    label: "API Requests Per Minute (average)",
+                    backgroundColor: 'rgba(160, 130, 80,0.1)',
+                    borderColor: 'rgba(160,130,80,0.8)',
+                    pointRadius: 0,
+                    data: movingDataSet,
+                } as ChartDataSets,
+                {
+                    label: "API Requests Per Minute",
+                    backgroundColor: 'rgba(75,192,192,0.1)',
+                    borderColor: 'rgba(75,192,192,0.8)',
+                    pointRadius: 0,
+                    data: statsDataSet,
+                } as ChartDataSets,
+
+            ]
         };
 
-        return <Line data={data} width={100} height={150} options={{
-            maintainAspectRatio: false,
+        return <Line data={data} width={100} height={30} options={{
+            maintainAspectRatio: true,
             scales: {
                 xAxes: [{
                     type: 'time',
@@ -125,6 +157,15 @@ class UnconnectedStatsPage extends React.Component<Props, State> {
             }
         }}/>
     }
+}
+
+function last12Hours(stat: UsageStat) {
+    return Date.now() - stat.time < 12 * 60 * 60 * 1000;
+}
+
+function previous12Hours(stat: UsageStat) {
+    const diff = Date.now() - stat.time;
+    return 12 * 60 * 60 * 1000 < diff && diff < 24 * 60 * 60 * 1000;
 }
 
 function mapStateToProps(state: AppState): ReduxStateProps {
