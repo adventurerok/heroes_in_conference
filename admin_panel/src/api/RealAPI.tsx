@@ -110,7 +110,7 @@ function convertServerToClientGroup(input: ServerGroup): ContentGroup {
 }
 
 function encodeString(str: string) {
-    return encodeURIComponent(str.replace("!", "!!").replace("/", "!slash"));
+    return encodeURIComponent(str.replace("!", "!!").replace("/", "!\\"));
 }
 
 interface ServerStat {
