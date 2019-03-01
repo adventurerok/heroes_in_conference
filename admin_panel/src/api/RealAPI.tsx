@@ -110,7 +110,7 @@ function convertServerToClientGroup(input: ServerGroup): ContentGroup {
 }
 
 function encodeString(str: string) {
-    return encodeURIComponent(str.replace(/!/g, "!!").replace("/", "!\\"));
+    return encodeURIComponent(str.replace(/!/g, "!!").replace(/\//g, "!\\"));
 }
 
 interface ServerStat {
@@ -126,7 +126,6 @@ function convertServerToClientStat(input: ServerStat): UsageStat {
 }
 
 async function doFetch<T>(url: string, extra?: RequestInit): Promise<APIResponse<T>> {
-    console.log(`doFetch ${url}`);
     const response = await fetch(url, {
         credentials: "include",
         ...extra,
