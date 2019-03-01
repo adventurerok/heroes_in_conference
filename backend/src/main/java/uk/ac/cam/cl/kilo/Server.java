@@ -160,6 +160,31 @@ public class Server {
   }
 
   /**
+   * Decodes the given slash encoded string. That is, every instance of `!!` is mapped to `!` and
+   * every instance of `!\` is mapped to `!`. Single exclamation marks are treated as such.
+   *
+   * @param encoded the slash encoded string to decode
+   * @return the result after decoding
+   */
+  public static String slashDecode(String encoded) {
+    StringBuilder decoded = new StringBuilder();
+    char[] encodedChars = encoded.toCharArray();
+    for (int i = 0; i < encodedChars.length; ++i) {
+      char c = encodedChars[i];
+      if (c == '!') {
+        ++i;
+        if (encodedChars[i] == '!') decoded.append('!');
+        else if (encodedChars[i] == '\\') decoded.append('/');
+        else {
+          decoded.append('!');
+          --i;
+        }
+      } else decoded.append(encodedChars[i]);
+    }
+    return decoded.toString();
+  }
+
+  /**
    * Returns the {@link uk.ac.cam.cl.kilo.data.User user} associated with the authenticated request
    * and throws an exception if the request is not authenticated.
    *
@@ -388,7 +413,8 @@ public class Server {
                             authenticateAdmin(request);
                             return ok(
                                 new ConferenceMap(
-                                    request.params("name").trim(), acceptUploadedImage(request)));
+                                    slashDecode(request.params("name").trim()),
+                                    acceptUploadedImage(request)));
                           },
                           gson::toJson);
                       post(
@@ -406,7 +432,7 @@ public class Server {
                           (request, response) -> {
                             authenticateAdmin(request);
                             long id = Long.parseLong(request.params(":map"));
-                            String name = request.params(":name").trim();
+                            String name = slashDecode(request.params(":name").trim());
                             ConferenceMap.getByID(id).setName(name);
                             return ok(null);
                           },
@@ -417,8 +443,8 @@ public class Server {
                             authenticateAdmin(request);
                             long id = Long.parseLong(request.params(":map"));
                             ConferenceMap map = ConferenceMap.getByID(id);
-                            String name = request.params(":name").trim();
-                            String desc = request.params(":desc").trim();
+                            String name = slashDecode(request.params(":name").trim());
+                            String desc = slashDecode(request.params(":desc").trim());
                             int x = Integer.parseInt(request.params(":x"));
                             int y = Integer.parseInt(request.params(":y"));
                             MapMarker marker = map.addMarker(name, desc, x, y);
@@ -443,8 +469,8 @@ public class Server {
                           (request, response) -> {
                             authenticateAdmin(request);
                             long id = Long.parseLong(request.params(":marker"));
-                            String name = request.params(":name").trim();
-                            String desc = request.params(":desc").trim();
+                            String name = slashDecode(request.params(":name").trim());
+                            String desc = slashDecode(request.params(":desc").trim());
                             int x = Integer.parseInt(request.params(":x"));
                             int y = Integer.parseInt(request.params(":y"));
                             MapMarker marker = MapMarker.getByID(id);
@@ -469,8 +495,8 @@ public class Server {
                           "/create/:name/:desc/:start/:end",
                           (request, response) -> {
                             authenticateAdmin(request);
-                            String name = request.params("name").trim();
-                            String desc = request.params("desc").trim();
+                            String name = slashDecode(request.params("name").trim());
+                            String desc = slashDecode(request.params("desc").trim());
                             Instant start =
                                 Instant.ofEpochSecond(Long.parseLong(request.params(":start")));
                             Instant end =
@@ -484,8 +510,8 @@ public class Server {
                           (request, response) -> {
                             authenticateAdmin(request);
                             long id = Long.parseLong(request.params(":event"));
-                            String name = request.params(":name").trim();
-                            String desc = request.params(":desc").trim();
+                            String name = slashDecode(request.params(":name").trim());
+                            String desc = slashDecode(request.params(":desc").trim());
                             Instant start =
                                 Instant.ofEpochSecond(Long.parseLong(request.params(":start")));
                             Instant end =
@@ -556,7 +582,7 @@ public class Server {
                               HttpRequest.get(
                                   facebookGraphURL
                                       + facebookID
-                                      + "/picture?type=large&width=200&height=200");
+                                      + "/picture?type=large&width=400&height=400");
                           File file = null;
                           if (imageRequest.ok()) {
                             file = new File("static/profiles/" + facebookID + ".jpeg");
@@ -684,7 +710,7 @@ public class Server {
                           "/query/:query",
                           (request, response) -> {
                             authenticatedUserFor(request);
-                            String query = request.params(":query");
+                            String query = slashDecode(request.params(":query").trim());
                             return ok(Database.getInstance().getUsersWithNameSimilarTo(query, 20));
                           },
                           gson::toJson);
