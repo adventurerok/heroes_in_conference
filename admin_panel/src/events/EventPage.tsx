@@ -203,7 +203,7 @@ class UnconnectedEventPage extends React.Component<Props, State> {
             })
             .catch(reason => {
                 this.setState({
-                    statusMessage: "Failed to save",
+                    statusMessage: `Failed to save: ${reason}`,
                 });
             });
     };
