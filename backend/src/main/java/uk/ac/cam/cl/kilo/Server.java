@@ -171,7 +171,7 @@ public class Server {
     char[] encodedChars = encoded.toCharArray();
     for (int i = 0; i < encodedChars.length; ++i) {
       char c = encodedChars[i];
-      if (c == '!') {
+      if (c == '!' && i < encodedChars.length - 1) {
         ++i;
         if (encodedChars[i] == '!') decoded.append('!');
         else if (encodedChars[i] == '\\') decoded.append('/');
@@ -179,7 +179,7 @@ public class Server {
           decoded.append('!');
           --i;
         }
-      } else decoded.append(encodedChars[i]);
+      } else decoded.append(c);
     }
     return decoded.toString();
   }
