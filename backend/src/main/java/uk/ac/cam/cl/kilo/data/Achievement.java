@@ -129,10 +129,10 @@ public class Achievement {
   static Achievement from(ResultSet rs) throws DatabaseException {
     assert (rs != null);
     try {
-      long id = rs.getLong(ID_FIELD);
-      String name = rs.getString(NAME_FIELD);
-      String desc = rs.getString(DESC_FIELD);
-      int reward = rs.getInt(REWARD_FIELD);
+      long id = rs.getLong(TABLE + "." + ID_FIELD);
+      String name = rs.getString(TABLE + "." + NAME_FIELD);
+      String desc = rs.getString(TABLE + "." + DESC_FIELD);
+      int reward = rs.getInt(TABLE + "." + REWARD_FIELD);
       int count = rs.getInt(COUNT_FIELD);
       return new Achievement(id, name, desc, reward, count);
     } catch (SQLException e) {

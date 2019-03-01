@@ -325,7 +325,8 @@ public class Event {
                   + " = i."
                   + INTERESTED_EVENT_ID_FIELD
                   + " WHERE "
-                  + " TABLE "
+                  + TABLE
+                  + "."
                   + ID_FIELD
                   + " = ? "
                   + " GROUP BY "
@@ -351,11 +352,11 @@ public class Event {
   static Event from(ResultSet rs) throws DatabaseException {
     assert (rs != null);
     try {
-      long id = rs.getLong(ID_FIELD);
-      String name = rs.getString(NAME_FIELD);
-      String desc = rs.getString(DESC_FIELD);
-      Instant start = rs.getTimestamp(START_FIELD).toInstant();
-      Instant end = rs.getTimestamp(END_FIELD).toInstant();
+      long id = rs.getLong(TABLE + "." + ID_FIELD);
+      String name = rs.getString(TABLE + "." + NAME_FIELD);
+      String desc = rs.getString(TABLE + "." + DESC_FIELD);
+      Instant start = rs.getTimestamp(TABLE + "." + START_FIELD).toInstant();
+      Instant end = rs.getTimestamp(TABLE + "." + END_FIELD).toInstant();
       int count = rs.getInt(COUNT_FIELD);
       return new Event(id, name, desc, start, end, count);
     } catch (SQLException e) {
