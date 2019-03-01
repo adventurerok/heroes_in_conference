@@ -9,8 +9,8 @@
   <users id="5" name="razvan"/>
 
   <!-- Achievements table -->
-  <achievements id="0" name="opened" reward="100"/>
-  <achievements id="1" name="closed" reward="200"/>
+  <achievements id="0" name="opened" reward="100" description="example"/>
+  <achievements id="1" name="closed" reward="200" description="example"/>
 
   <!-- Achieved table -->
   <achieved user_id="0" achievement_id="0"/>

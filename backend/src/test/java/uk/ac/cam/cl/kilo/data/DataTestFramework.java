@@ -94,6 +94,8 @@ public class DataTestFramework {
                 + ", "
                 + Achievement.NAME_FIELD
                 + " varchar(255) NOT NULL, "
+                + Achievement.DESC_FIELD
+                + " varchar(4096), "
                 + Achievement.REWARD_FIELD
                 + " int NOT NULL, PRIMARY KEY ("
                 + Event.ID_FIELD

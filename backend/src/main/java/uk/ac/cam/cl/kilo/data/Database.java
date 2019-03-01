@@ -96,7 +96,27 @@ public class Database {
   public List<Event> getEvents() throws DatabaseException {
     try (Connection conc = getConnection()) {
       List<Event> result = new ArrayList<>();
-      PreparedStatement stmt = conc.prepareStatement("SELECT * FROM " + Event.TABLE);
+      PreparedStatement stmt =
+          conc.prepareStatement(
+              "SELECT *, COUNT("
+                  + "a."
+                  + Event.INTERESTED_EVENT_ID_FIELD
+                  + ") AS "
+                  + Event.COUNT_FIELD
+                  + " FROM "
+                  + Event.TABLE
+                  + " LEFT JOIN "
+                  + Event.INTERESTED_TABLE
+                  + " a ON "
+                  + Event.TABLE
+                  + "."
+                  + Event.ID_FIELD
+                  + " = a."
+                  + Event.INTERESTED_EVENT_ID_FIELD
+                  + " GROUP BY "
+                  + Event.TABLE
+                  + "."
+                  + Event.ID_FIELD);
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) result.add(Event.from(rs));
       return result;

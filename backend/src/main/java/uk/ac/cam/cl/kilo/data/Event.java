@@ -31,7 +31,7 @@ public class Event {
       DESC_FIELD = "description",
       START_FIELD = "start",
       END_FIELD = "end",
-      LOC_FIELD = "location";
+      COUNT_FIELD = "count";
   // Auxiliary table parameters for 'is interested in' relation
   public static final String INTERESTED_TABLE = "interested",
       INTERESTED_USER_ID_FIELD = "user_id",
@@ -41,6 +41,7 @@ public class Event {
   private String name;
   private String desc;
   private Instant start, end;
+  private int count;
 
   /**
    * Create a new event with the given name, description, and timing.
@@ -91,17 +92,19 @@ public class Event {
     }
   }
 
-  private Event(long id, String name, String desc, Instant start, Instant end) {
+  private Event(long id, String name, String desc, Instant start, Instant end, int count) {
     assert (name != null);
     assert (!name.equals(""));
     assert (desc != null);
     assert (start != null);
     assert (end != null);
+    assert (count >= 0);
     this.id = id;
     this.name = name;
     this.desc = desc;
     this.start = start;
     this.end = end;
+    this.count = count;
   }
 
   /** @return the ID of the event */
@@ -259,27 +262,9 @@ public class Event {
     }
   }
 
-  /**
-   * @return the number of users interested in the event
-   * @throws DatabaseException if the database could not be accessed
-   */
-  public int getInterestedCount() throws DatabaseException {
-    try (Connection conc = Database.getInstance().getConnection()) {
-      PreparedStatement stmt =
-          conc.prepareStatement(
-              "SELECT COUNT(*) FROM "
-                  + INTERESTED_TABLE
-                  + " WHERE "
-                  + INTERESTED_EVENT_ID_FIELD
-                  + " = ?");
-      stmt.setLong(1, id);
-      ResultSet rs = stmt.executeQuery();
-      // We assert here because a COUNT(*) query should always return a single row
-      assert (rs.first());
-      return rs.getInt(1);
-    } catch (SQLException e) {
-      throw new DatabaseException(e);
-    }
+  /** @return the number of users interested in the event */
+  public int getInterestedCount() {
+    return count;
   }
 
   /**
@@ -323,7 +308,30 @@ public class Event {
   public static Event getByID(long id) throws DatabaseException {
     try (Connection conc = Database.getInstance().getConnection()) {
       PreparedStatement stmt =
-          conc.prepareStatement("SELECT * FROM " + TABLE + " WHERE " + ID_FIELD + " = ?");
+          conc.prepareStatement(
+              "SELECT *, COUNT("
+                  + "i."
+                  + INTERESTED_EVENT_ID_FIELD
+                  + ") AS "
+                  + COUNT_FIELD
+                  + " FROM "
+                  + TABLE
+                  + " LEFT JOIN "
+                  + INTERESTED_TABLE
+                  + " i ON "
+                  + TABLE
+                  + "."
+                  + ID_FIELD
+                  + " = i."
+                  + INTERESTED_EVENT_ID_FIELD
+                  + " WHERE "
+                  + " TABLE "
+                  + ID_FIELD
+                  + " = ? "
+                  + " GROUP BY "
+                  + TABLE
+                  + "."
+                  + ID_FIELD);
       stmt.setLong(1, id);
       ResultSet rs = stmt.executeQuery();
       if (!rs.first()) throw new DatabaseException("No event with ID " + id);
@@ -348,7 +356,8 @@ public class Event {
       String desc = rs.getString(DESC_FIELD);
       Instant start = rs.getTimestamp(START_FIELD).toInstant();
       Instant end = rs.getTimestamp(END_FIELD).toInstant();
-      return new Event(id, name, desc, start, end);
+      int count = rs.getInt(COUNT_FIELD);
+      return new Event(id, name, desc, start, end, count);
     } catch (SQLException e) {
       throw new DatabaseException(e);
     }

@@ -88,7 +88,7 @@ public class Server {
       oauthID,
       oauthSecret,
       adminPasshash;
-  private static File uploadDir;
+  private static File mapDir, profileDir;
   private static Map<String, Instant> adminSessions = new HashMap<>();
   private static int requestCount = 0;
   private static final Lock lock = new ReentrantLock(true);
@@ -152,10 +152,10 @@ public class Server {
 
   public static void configureUploadDirectory() {
     log.info("Configuring upload directory...");
-    uploadDir = new File("static/upload");
-    uploadDir.mkdirs();
-    uploadDir = new File("static/profiles");
-    uploadDir.mkdirs();
+    mapDir = new File("static/maps");
+    mapDir.mkdirs();
+    profileDir = new File("static/profiles");
+    profileDir.mkdirs();
     log.info("Upload directory configured!");
   }
 
@@ -211,7 +211,7 @@ public class Server {
    * @throws ServletException if the upload could not be completed
    */
   public static Path acceptUploadedImage(Request request) throws IOException, ServletException {
-    Path tempFile = Files.createTempFile(uploadDir.toPath(), "", ".jpg");
+    Path tempFile = Files.createTempFile(mapDir.toPath(), "", ".jpg");
     request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
     try (InputStream input = request.raw().getPart("image").getInputStream()) {
       Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING);
@@ -240,7 +240,7 @@ public class Server {
                 lock.unlock();
                 try {
                   // Try to add the reading to the database
-                  new UsageStatistic(now, requestCount);
+                  new UsageStatistic(now, requestCountCopy);
                 } catch (DatabaseException e) {
                   // If we fail, then we need to restore those measurements
                   lock.lock();
@@ -291,26 +291,21 @@ public class Server {
     exception(
         AdminUnauthenticatedException.class,
         (exception, request, response) -> {
-          // Handle authentication exception by redirecting to authentication handler
           response.body(gson.toJson(err(exception.getMessage())));
         });
     exception(
         UnauthenticatedException.class,
         (exception, request, response) -> {
-          // Handle authentication exception by redirecting to authentication handler
-          response.redirect("/api/oauth");
+          response.body(gson.toJson(err(exception.getMessage())));
         });
     exception(
         IllegalArgumentException.class,
         (exception, request, response) -> {
-          // Handle illegal argument exception by sending error
-          log.error("IllegalArgumentException:", exception);
           response.body(gson.toJson(err(exception.getMessage())));
         });
     exception(
         DateTimeParseException.class,
         (exception, request, response) -> {
-          // Handle illegal argument exception by sending error
           response.body(gson.toJson(err(exception.getMessage())));
         });
     // API path
@@ -561,7 +556,7 @@ public class Server {
                               HttpRequest.get(
                                   facebookGraphURL
                                       + facebookID
-                                      + "/picture?type=large&width=800&height=800");
+                                      + "/picture?type=large&width=200&height=200");
                           File file = null;
                           if (imageRequest.ok()) {
                             file = new File("static/profiles/" + facebookID + ".jpeg");

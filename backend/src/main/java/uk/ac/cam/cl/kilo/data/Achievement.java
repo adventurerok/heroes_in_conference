@@ -26,6 +26,7 @@ public class Achievement {
   public static final String TABLE = "achievements",
       ID_FIELD = "id",
       NAME_FIELD = "name",
+      DESC_FIELD = "description",
       REWARD_FIELD = "reward",
       COUNT_FIELD = "count";
   // Auxiliary table parameters for 'has achieved' relation
@@ -34,15 +35,17 @@ public class Achievement {
       ACHIEVED_ACHIEVEMENT_ID_FIELD = "achievement_id";
 
   private long id;
-  private String name;
+  private String name, desc;
   private int reward, count;
 
-  private Achievement(long id, String name, int reward, int count) {
+  private Achievement(long id, String name, String desc, int reward, int count) {
     assert (name != null && !name.equals(""));
     assert (reward >= 0);
     assert (count >= 0);
+    if (desc == null) desc = "";
     this.id = id;
     this.name = name;
+    this.desc = desc;
     this.reward = reward;
     this.count = count;
   }
@@ -60,6 +63,11 @@ public class Achievement {
   /** @return the name of the achievement */
   public String getName() {
     return name;
+  }
+
+  /** @return the description of the achievement */
+  public String getDescription() {
+    return desc;
   }
 
   /** @return the number of time the achievement has been achieved */
@@ -123,9 +131,10 @@ public class Achievement {
     try {
       long id = rs.getLong(ID_FIELD);
       String name = rs.getString(NAME_FIELD);
+      String desc = rs.getString(DESC_FIELD);
       int reward = rs.getInt(REWARD_FIELD);
       int count = rs.getInt(COUNT_FIELD);
-      return new Achievement(id, name, reward, count);
+      return new Achievement(id, name, desc, reward, count);
     } catch (SQLException e) {
       throw new DatabaseException(e);
     }
