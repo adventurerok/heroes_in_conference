@@ -25,6 +25,7 @@ interface ServerEvent {
     desc: string,
     start: ServerTime,
     end: ServerTime,
+    count: number,
 }
 
 function convertServerToClientEvent(input: ServerEvent): Event {
@@ -34,6 +35,7 @@ function convertServerToClientEvent(input: ServerEvent): Event {
         description: input.desc,
         startTime: convertServerTime(input.start),
         endTime: convertServerTime(input.end),
+        count: input.count,
     }
 }
 

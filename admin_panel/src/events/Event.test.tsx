@@ -7,7 +7,8 @@ describe("Event.sortStartTime", () => {
         endTime: 200,
         name: "1_A",
         description: "",
-        id: ""
+        id: "",
+        count: 3,
     };
 
     const eventB : Event = {
@@ -15,7 +16,8 @@ describe("Event.sortStartTime", () => {
         endTime: 250,
         name: "2_B",
         description: "",
-        id: ""
+        id: "",
+        count: 5,
     };
 
     const eventC : Event = {
@@ -23,7 +25,8 @@ describe("Event.sortStartTime", () => {
         endTime: 400,
         name: "1_C",
         description: "",
-        id: ""
+        id: "",
+        count: 0,
     };
 
     const eventD : Event = {
@@ -31,7 +34,8 @@ describe("Event.sortStartTime", () => {
         endTime: 1000,
         name: "1_D",
         description: "",
-        id: ""
+        id: "",
+        count: 31
     };
 
     const eventE : Event = {
@@ -39,7 +43,8 @@ describe("Event.sortStartTime", () => {
         endTime: 305,
         name: "2_E",
         description: "",
-        id: ""
+        id: "",
+        count: 2,
     };
 
 
@@ -61,6 +66,7 @@ describe("Event.validationMessage", () => {
             description: "",
             startTime: new Date(2017, 1, 1).getTime(),
             endTime: new Date(2017, 1, 2).getTime(),
+            count: 3,
         };
 
         const msg = Event.validationMessage(namelessEvent);
@@ -73,7 +79,8 @@ describe("Event.validationMessage", () => {
             name: "Back to the Future",
             description: "Great Scott!!",
             startTime: new Date(2015, 10, 21).getTime(),
-            endTime: new Date(1985, 12, 4).getTime()
+            endTime: new Date(1985, 12, 4).getTime(),
+            count: 3,
         };
 
         const msg = Event.validationMessage(backwardsEvent);

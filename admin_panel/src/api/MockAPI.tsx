@@ -16,6 +16,7 @@ const mockEvents: IDMap<Event> = {
         name: "First",
         startTime: new Date(2019, 1, 1).getTime(),
         endTime: new Date(2019, 1, 2).getTime(),
+        count: 2777142,
     },
     "2": {
         id: "2",
@@ -23,6 +24,7 @@ const mockEvents: IDMap<Event> = {
         name: "Second",
         startTime: new Date(2019, 1, 5).getTime(),
         endTime: new Date(2019, 1, 8).getTime(),
+        count: 3,
     }
 };
 

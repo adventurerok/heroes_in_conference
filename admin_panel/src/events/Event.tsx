@@ -9,7 +9,8 @@ export interface Event {
     description: string,
     location?: string, // just a string for now, e.g. "LT1", which would then link to map marker
     startTime: DateTime,
-    endTime: DateTime
+    endTime: DateTime,
+    count: number,
 }
 
 /**
@@ -40,7 +41,8 @@ function create(): Event {
         name: "",
         description: "",
         startTime: Date.now(),
-        endTime: Date.now()
+        endTime: Date.now(),
+        count: 0,
     };
 }
 
