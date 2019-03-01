@@ -81,29 +81,19 @@ public class User {
       List<Achievement> result = new ArrayList<>();
       PreparedStatement stmt =
           conc.prepareStatement(
-              "SELECT "
-                  + Achievement.ACHIEVED_TABLE
-                  + "."
-                  + Achievement.ACHIEVED_ACHIEVEMENT_ID_FIELD
-                  + ", "
+              "SELECT * FROM "
                   + Achievement.TABLE
-                  + "."
-                  + Achievement.NAME_FIELD
-                  + " FROM "
-                  + Achievement.ACHIEVED_TABLE
                   + " JOIN "
-                  + Achievement.TABLE
-                  + " ON "
                   + Achievement.ACHIEVED_TABLE
-                  + "."
+                  + " a ON "
+                  + "a."
                   + Achievement.ACHIEVED_ACHIEVEMENT_ID_FIELD
                   + " = "
                   + Achievement.TABLE
                   + "."
                   + Achievement.ID_FIELD
                   + " WHERE "
-                  + Achievement.ACHIEVED_TABLE
-                  + "."
+                  + "a."
                   + Achievement.ACHIEVED_USER_ID_FIELD
                   + " = ?");
       stmt.setLong(1, id);
@@ -176,41 +166,19 @@ public class User {
       List<Event> result = new ArrayList<>();
       PreparedStatement stmt =
           conc.prepareStatement(
-              "SELECT "
-                  + Event.INTERESTED_TABLE
-                  + "."
-                  + Event.INTERESTED_EVENT_ID_FIELD
-                  + ", "
+              "SELECT * FROM "
                   + Event.TABLE
-                  + "."
-                  + Event.NAME_FIELD
-                  + ", "
-                  + Event.TABLE
-                  + "."
-                  + Event.DESC_FIELD
-                  + ", "
-                  + Event.TABLE
-                  + "."
-                  + Event.START_FIELD
-                  + ", "
-                  + Event.TABLE
-                  + "."
-                  + Event.END_FIELD
-                  + " FROM "
-                  + Event.INTERESTED_TABLE
                   + " JOIN "
-                  + Event.TABLE
-                  + " ON "
                   + Event.INTERESTED_TABLE
-                  + "."
+                  + " a ON "
+                  + "a."
                   + Event.INTERESTED_EVENT_ID_FIELD
                   + " = "
                   + Event.TABLE
                   + "."
                   + Event.ID_FIELD
                   + " WHERE "
-                  + Event.INTERESTED_TABLE
-                  + "."
+                  + "a."
                   + Event.INTERESTED_USER_ID_FIELD
                   + " = ?");
       stmt.setLong(1, id);
