@@ -59,11 +59,11 @@ if database_details_required:
 
 if database_details_required:
     database = open("database.properties", "w")
-    database.write("driver=com.mysql.cj.jdbc.Driver")
-    database.write("url=mysql://" + args.mysql_host)
-    database.write("database=" + args.database_name)
-    database.write("user=" + args.mysql_user)
-    database.write("pass=" + mysql_password)
+    database.write("driver=com.mysql.cj.jdbc.Driver\n")
+    database.write("url=mysql://" + args.mysql_host + "\n")
+    database.write("database=" + args.database_name + "\n")
+    database.write("user=" + args.mysql_user + "\n")
+    database.write("pass=" + mysql_password + "\n")
     database.close()
 
 if args.update_schema or args.clean:
@@ -80,13 +80,13 @@ if (not os.path.isfile("facebook.properties")
         or args.client_id is not None
         or args.clean):
     facebook = open("facebook.properties", "w")
-    facebook.write("authorisation_url=" + args.oauth_url)
-    facebook.write("graph_url=" + args.graph_url)
+    facebook.write("authorisation_url=" + args.oauth_url + "\n")
+    facebook.write("graph_url=" + args.graph_url + "\n")
     if args.client_id is None:
         args.client_id = input("Enter Facebook client ID: ")
-    facebook.write("client_id=" + args.client_id)
+    facebook.write("client_id=" + args.client_id + "\n")
     client_secret = getpass("Enter Facebook client secret: ")
-    facebook.write("client_secret=" + client_secret)
+    facebook.write("client_secret=" + client_secret + "\n")
     facebook.close
 
 if (not os.path.isfile("admin.properties") 
