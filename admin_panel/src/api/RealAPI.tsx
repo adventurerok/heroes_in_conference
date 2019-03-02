@@ -5,6 +5,7 @@ import {MapMarker} from "../maps/MapMarker";
 import {Achievement} from "../achievements/Achievement";
 import {ContentGroup} from "../groups/ContentGroup";
 import {UsageStat} from "../stats/UsageStat";
+import {encodeString} from "../util/StringEncoder";
 
 
 const apiUrl = "/api";
@@ -109,9 +110,7 @@ function convertServerToClientGroup(input: ServerGroup): ContentGroup {
     }
 }
 
-function encodeString(str: string) {
-    return encodeURIComponent(str.replace(/!/g, "!!").replace("/", "!\\"));
-}
+
 
 interface ServerStat {
     time: ServerTime,

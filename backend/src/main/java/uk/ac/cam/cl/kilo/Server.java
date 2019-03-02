@@ -309,7 +309,6 @@ public class Server {
     exception(
         DatabaseException.class,
         (exception, request, response) -> {
-          // Handle database exception
           log.error("DatabaseException:", exception);
           response.body(gson.toJson(err(exception.getMessage())));
         });
@@ -549,6 +548,7 @@ public class Server {
                 get(
                     "/callback",
                     (request, response) -> {
+                      response.redirect("heroesinconference://return/", 301);
                       String id = request.queryParamOrDefault("state", "");
                       String code = request.queryParamOrDefault("code", "");
                       if (id == null || code == null)
@@ -590,12 +590,11 @@ public class Server {
                             imageRequest.receive(file);
                             ProfileAugmentation.getInstance().augment(Paths.get(file.getPath()));
                             user = new User(facebookID, name);
-                          } else
-                            throw new UnauthenticatedException("Could not get profile picture");
+                          } else throw new UnauthenticatedException("Could not get profile photo");
                         } else user = User.getByID(facebookID);
                         session.activateFor(user, token);
-                        return gson.toJson(ok(json));
-                      } else throw new UnauthenticatedException("Could not get access token");
+                        return ok(null);
+                      } else throw new UnauthenticatedException("Could not get Facebook token");
                     });
                 get(
                     "/",
