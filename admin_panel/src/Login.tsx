@@ -1,5 +1,5 @@
 import * as React from "react";
-import {ChangeEvent} from "react";
+import {ChangeEvent, FormEvent} from "react";
 import {API} from "./api/API";
 import {RouteComponentProps, withRouter} from "react-router";
 import {LoginState} from "./store/LoginState";
@@ -39,14 +39,14 @@ class UnconnectedLogin extends React.Component<Props, State> {
     public render(): React.ReactNode {
         return <>
             <h1>Login</h1>
-            <>
+            <form action="#" onSubmit={this.attemptLogin}>
                 <div className="form-group">
                     <label htmlFor="password">Password</label>
                     <input type="password" className="form-control" id="password" value={this.state.password} onChange={this.passwordChanged}/>
                 </div>
                 <div>{this.state.statusMessage}</div>
-                <button type="button" className="btn btn-primary" onClick={this.attemptLogin}>Login</button>
-            </>
+                <button type="submit" className="btn btn-primary">Login</button>
+            </form>
         </>;
     }
 
@@ -56,7 +56,9 @@ class UnconnectedLogin extends React.Component<Props, State> {
         });
     };
 
-    private attemptLogin = () => {
+    private attemptLogin = (event: FormEvent) => {
+        event.preventDefault();
+
         API.login(this.state.password).then(result => {
             if(result) {
                 this.props.setLoginState(LoginState.LOGGED_IN);
@@ -67,6 +69,8 @@ class UnconnectedLogin extends React.Component<Props, State> {
                 });
             }
         });
+
+
     };
 
 }
