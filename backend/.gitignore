@@ -2,3 +2,4 @@
 *.jar
 /static/
 *.properties
+server.log
