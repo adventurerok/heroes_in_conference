@@ -7,7 +7,6 @@ export interface Event {
     id: string,
     name: string,
     description: string,
-    location?: string, // just a string for now, e.g. "LT1", which would then link to map marker
     startTime: DateTime,
     endTime: DateTime,
     count: number,

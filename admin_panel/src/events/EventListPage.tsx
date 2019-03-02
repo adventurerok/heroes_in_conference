@@ -57,7 +57,6 @@ class UnconnectedEventListPage extends React.Component<Props, {}> {
                     <th>Description</th>
                     <th>Start Time</th>
                     <th>End Time</th>
-                    <th>Location</th>
                     <th>Interest</th>
                 </tr>
                 </thead>
@@ -101,7 +100,6 @@ class EventDisplay extends React.Component<EventDisplayProps, {}> {
             <td>{this.props.event.description}</td>
             <td>{format(this.props.event.startTime, "MMM d HH:mm")}</td>
             <td>{format(this.props.event.endTime, "MMM d HH:mm")}</td>
-            <td>{this.props.event.location || "None"}</td>
             <td>{this.props.event.count}</td>
         </tr>;
     }

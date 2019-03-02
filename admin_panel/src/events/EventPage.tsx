@@ -88,11 +88,6 @@ class UnconnectedEventPage extends React.Component<Props, State> {
                            placeholder="Event Name" value={event.name} onChange={this.textChanged}/>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="location">Location</label>
-                    <input type="text" className="form-control" id="location"
-                           placeholder="RuneFest 2019" value={event.location} onChange={this.textChanged}/>
-                </div>
-                <div className="form-group">
                     <label htmlFor="startTime">Start Time</label>
                     <DateTimeLocal className="form-control"
                                    dateTime={event.startTime} onChange={this.startTimeChanged}/>
