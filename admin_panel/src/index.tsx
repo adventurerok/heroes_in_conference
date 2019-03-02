@@ -10,9 +10,13 @@ import registerServiceWorker from './registerServiceWorker';
 import {Provider} from "react-redux";
 import {appStore} from "./store/appStore";
 
+const devMode = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+
+const baseName = devMode ? undefined : "/admin/";
+
 ReactDOM.render(
     <Provider store={appStore}>
-        <Router>
+        <Router basename={baseName}>
             <App/>
         </Router>
     </Provider>,
