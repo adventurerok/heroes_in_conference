@@ -19,16 +19,13 @@ git clone https://github.com/groupkilo/heroes_in_conference.git
 - OpenJDK 8 (or equivalent)
 - Maven
 - MySQL
+- Python 3
 
-### Build and Test
+### Automatic Configuration
 
-Building and testing the server is as simple as:
+Running `autoconf.py` will automatically configure and run the server. The server will bind to port `4567` so a proxy must be set up if it is desired to be exposed on port `80`. A number of options for updating various parts of the server are available inside `autoconf.py`. To list them run `autoconf.py --help`.
 
-```sh
-mvn compile test
-```
-
-### Setup
+### Manual Configuration
 
 In order for the server to work correctly, you will need create three files in your `backend` directory. These are: `facebook.properties`, `database.properties`, and `admin.properties`. All commands shown in the following section assume you are already inside the `backend` directory.
 
@@ -69,13 +66,11 @@ pass={% your MySQL password %}
 
 #### `admin.properties`
 
-This file contains just a SHA-256 hash of the password you want to use for the administration panel. To generate this you can simply run:
+This file contains a hash of the password for the administration panel.
 
-```sh
-./passwd.py
 ```
-
-Then, enter a password when prompted. This will automatically create the `admin.properties` file. Note, this cannot be changed while the server is running.
+passhash={% SHA-256 hash of admin password %}
+```
 
 ### Launch
 
