@@ -251,8 +251,6 @@ class UnconnectedMapPage extends React.Component<Props, State> {
                 });
             }
             if (CacheItem.isPresent(this.props.map)) {
-                // TODO id or new
-
                 this.setState({
                     map: this.props.map.item,
                 });

@@ -10,7 +10,6 @@ import {updateCachedMap} from "./UpdateCachedMap";
 export function deleteMap(map: ConferenceMap, dispatch: AppDispatch): Promise<void> {
     return API.deleteMap(map.id).then(value => {
 
-        // TODO also remove the markers of this map?
         dispatch(updateCachedMap(null, map.id));
     });
 }
