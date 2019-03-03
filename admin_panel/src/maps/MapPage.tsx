@@ -134,10 +134,7 @@ class UnconnectedMapPage extends React.Component<Props, State> {
 
         const isNew = this.props.match.params.id === "new";
 
-        let mapUrl = map.path;
-        if (mapUrl.charAt(0) === "/") {
-            mapUrl = process.env.PUBLIC_URL + mapUrl;
-        }
+        const mapUrl = map.path;
 
         const leafletMap = <ReactLeaflet.Map crs={L.CRS.Simple} minZoom={-2} maxZoom={3} bounds={bounds}
                                              ref={this.mapRef}>
